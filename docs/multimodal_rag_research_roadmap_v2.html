@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>多模态 RAG 研究路线图 v2</title>
+<style>
+:root{
+  --bg:#f6f7fb;--ink:#172033;--muted:#5b6472;--line:#d9dee8;--card:#fff;
+  --blue:#2b59c3;--cyan:#34a0a4;--green:#2e7d32;--purple:#7b2cbf;--orange:#f77f00;--red:#c1121f;
+  --lb:#eaf0ff;--lc:#e6f7f8;--lg:#e9f5ea;--lp:#f2e9ff;--lo:#fff3e0;--lr:#fdeaea;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;line-height:1.45}
+header{padding:48px 48px 30px;background:linear-gradient(135deg,#172033,#263a68);color:white;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-160px;top:-120px;width:380px;height:380px;background:rgba(255,255,255,.08);border-radius:50%}
+h1{margin:0 0 12px;font-size:40px;letter-spacing:.5px} .subtitle{font-size:18px;opacity:.86;max-width:1050px}.hint{margin-top:18px;color:#dce6ff;font-size:13px}.wrap{max-width:1360px;margin:0 auto;padding:28px 32px 60px}.section{margin:34px 0}.section h2{font-size:24px;margin:0 0 14px}.section p.lead{margin:0 0 18px;color:var(--muted);font-size:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:0 8px 18px rgba(23,32,51,.05)}
+.editable [contenteditable="true"]{outline:1px dashed transparent}.editable [contenteditable="true"]:focus{outline:2px dashed #86a7ff;background:white}
+.timeline{background:white;border:1px solid var(--line);border-radius:22px;padding:22px;overflow:auto;box-shadow:0 12px 26px rgba(23,32,51,.05)}
+.grid{display:grid;grid-template-columns:118px repeat(11, minmax(92px,1fr));gap:9px;min-width:1160px;align-items:stretch}.year{background:var(--ink);color:#fff;border-radius:999px;text-align:center;padding:5px 0;font-weight:700;font-size:12px}.lane{display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:13px;font-weight:800;padding-right:8px}.node{min-height:64px;border-radius:14px;padding:9px 9px;border:1px solid var(--line);font-size:12px;background:#fff}.node strong{display:block;font-size:12.5px;margin-bottom:3px}.n-blue{background:var(--lb);border-color:#9fb6ff;color:var(--blue)}.n-cyan{background:var(--lc);border-color:#91d9db;color:var(--cyan)}.n-green{background:var(--lg);border-color:#9ad29d;color:var(--green)}.n-purple{background:var(--lp);border-color:#c4a4ff;color:var(--purple)}.n-orange{background:var(--lo);border-color:#ffc46c;color:var(--orange)}.n-red{background:var(--lr);border-color:#ffb0b0;color:var(--red)}.blank{background:transparent;border:1px dashed #edf0f5;color:#c4cad5}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tag{font-size:12px;border-radius:999px;padding:5px 10px;border:1px solid var(--line);background:#fff}.tag.blue{color:var(--blue);background:var(--lb);border-color:#9fb6ff}.tag.cyan{color:var(--cyan);background:var(--lc);border-color:#91d9db}.tag.purple{color:var(--purple);background:var(--lp);border-color:#c4a4ff}.tag.orange{color:var(--orange);background:var(--lo);border-color:#ffc46c}.tag.green{color:var(--green);background:var(--lg);border-color:#9ad29d}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.cols2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.stack{display:grid;gap:11px}.stack .item{border-radius:14px;padding:13px 15px;border:1px solid var(--line);background:#fff}.stack .item h3{font-size:16px;margin:0 0 6px}.stack .item p{margin:0;color:#293241;font-size:14px}.item.blue{background:var(--lb);border-color:#9fb6ff}.item.cyan{background:var(--lc);border-color:#91d9db}.item.green{background:var(--lg);border-color:#9ad29d}.item.purple{background:var(--lp);border-color:#c4a4ff}.item.orange{background:var(--lo);border-color:#ffc46c}.item.red{background:var(--lr);border-color:#ffb0b0}.matrix{width:100%;border-collapse:separate;border-spacing:0 8px}.matrix th{font-size:13px;color:var(--muted);text-align:left}.matrix td{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 14px;font-size:14px}.matrix td:first-child{border-left:1px solid var(--line);border-radius:12px 0 0 12px;font-weight:800;color:var(--ink);width:190px}.matrix td:last-child{border-right:1px solid var(--line);border-radius:0 12px 12px 0}.callout{padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#172033,#31528f);color:white;margin:22px 0}.callout strong{color:#fff}.mini{font-size:12px;color:var(--muted)}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}.refs li{margin:7px 0}.arch{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.arch .card{padding:14px;min-height:168px}.arch h3{margin:0 0 8px;font-size:16px}.arch p{margin:0;color:#293241;font-size:13px}.researchq{counter-reset:rq}.researchq .item{position:relative;padding-left:64px}.researchq .item::before{counter-increment:rq;content:"RQ" counter(rq);position:absolute;left:14px;top:14px;background:var(--ink);color:white;border-radius:999px;font-size:12px;font-weight:800;padding:4px 8px}
+@media print{body{background:white}.wrap{padding:12px}.section{break-inside:avoid}.timeline{overflow:visible}.grid{min-width:0}.hint{display:none}}
+@media(max-width:900px){.cols,.cols2,.arch{grid-template-columns:1fr}.wrap{padding:22px 16px}header{padding:38px 24px}h1{font-size:30px}}
+</style>
+</head>
+<body class="editable">
+<header>
+  <h1 contenteditable="true">多模态 RAG 研究路线图 v2</h1>
+  <div class="subtitle" contenteditable="true">把原来的线性时间轴改成“技术问题 × 评估方法 × 企业/HCI 使用场景”的分层地图：更适合组会、开题、review idea 和 baseline 选择。</div>
+  <div class="hint">提示：PPTX 更适合直接编辑；本 HTML 也可在浏览器/VS Code 中修改文本与卡片。</div>
+</header>
+<div class="wrap">
+  <section class="section">
+    <h2>1｜改版后的时间轴：5 条 swimlane</h2>
+    <p class="lead">主轴仍保留 2016–2026，但不再把所有论文硬塞成一条线，而是按它们主要解决的问题分轨。</p>
+    <div class="timeline">
+      <div class="grid">
+        <div></div><div class="year">2016</div><div class="year">2017</div><div class="year">2018</div><div class="year">2019</div><div class="year">2020</div><div class="year">2021</div><div class="year">2022</div><div class="year">2023</div><div class="year">2024</div><div class="year">2025</div><div class="year">2026</div>
+        <div class="lane" style="color:var(--blue)">外部知识 QA</div><div class="node n-blue"><strong>Ask Me Anything</strong>外部知识 VQA 起点</div><div class="node n-blue"><strong>Explicit KB</strong>显式知识库推理</div><div class="node n-blue"><strong>Straight to Facts</strong>学习 fact retrieval</div><div class="node n-blue"><strong>OK-VQA</strong>开放域知识型 VQA</div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div>
+        <div class="lane" style="color:var(--cyan)">RAG / 检索范式</div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="node n-cyan"><strong>RAG</strong>参数记忆 + 非参数记忆</div><div class="node n-cyan"><strong>CLIP</strong>图文统一检索空间</div><div class="node n-cyan"><strong>MuRAG</strong>图像+文本外部记忆</div><div class="node n-cyan"><strong>RA-CM3</strong>检索增强多模态生成</div><div class="blank"></div><div class="blank"></div><div class="blank"></div>
+        <div class="lane" style="color:var(--purple)">文档 / 企业数据</div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="node n-purple"><strong>ViperGPT / AVIS</strong>工具与 Agent 解耦</div><div class="node n-purple"><strong>ColPali / VisRAG</strong>PDF 页面视觉检索</div><div class="node n-purple"><strong>REAL-MM-RAG / FinRAG-V</strong>真实文档与领域数据</div><div class="node n-purple"><strong>Double-Bench</strong>多语言多模态文档 RAG</div>
+        <div class="lane" style="color:var(--orange)">评估方法</div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="node n-orange"><strong>RAGAS / ARES / RAGChecker</strong>组件级文本 RAG 评估</div><div class="node n-orange"><strong>MRAG-Bench / M²RAG</strong>视觉证据使用评估</div><div class="node n-orange"><strong>证据页 / 多跳 / 多语言</strong>真实文档 RAG 评估</div>
+        <div class="lane" style="color:var(--green)">HCI / 落地</div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="blank"></div><div class="node n-green"><strong>企业内容设计</strong>文档结构与查询行为</div><div class="node n-green"><strong>Trust & Transparency</strong>来源、控制、信任校准</div><div class="node n-green"><strong>反馈闭环</strong>数据治理与使用日志</div>
+      </div>
+      <div class="legend"><span class="tag blue">外部知识 QA</span><span class="tag cyan">RAG / 检索范式</span><span class="tag purple">企业文档</span><span class="tag orange">评估</span><span class="tag green">HCI/落地</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>2｜多模态 RAG 解决了什么问题？</h2>
+    <div class="cols">
+      <div class="stack">
+        <div class="item blue"><h3>知识不只存在于文本</h3><p>图表、表格、截图、流程图、公式、页面布局、照片、视频帧都可能是回答问题所需的 context。</p></div>
+        <div class="item cyan"><h3>减少 OCR / parsing 损失</h3><p>传统文本化流程可能丢掉布局、视觉关系、图表趋势、区域定位；视觉检索保留页面原貌。</p></div>
+      </div>
+      <div class="stack">
+        <div class="item purple"><h3>把企业私有知识作为外部记忆</h3><p>RAG 的本质是把符合问题要求的 context 在推理时引入，知识更新更多发生在知识库/索引层。</p></div>
+        <div class="item green"><h3>支持可追溯答案</h3><p>企业任务需要的不只是答案，还需要文档、页码、表格、图表区域、证据链和责任源。</p></div>
+      </div>
+      <div class="stack">
+        <div class="item orange"><h3>支持跨模态任务</h3><p>例如设备照片 + 维修手册、财报图表 + 文字披露、UI 截图 + 操作文档、扫描件 + 表格。</p></div>
+        <div class="item red"><h3>从 model-centric 回到 data-centric</h3><p>高可用瓶颈常在数据类型、质量、权限、更新、元数据、检索覆盖和用户反馈，而不只是模型大小。</p></div>
+      </div>
+    </div>
+    <div class="callout"><strong>定义建议：</strong>多模态 RAG = 查询、知识库、检索结果、证据呈现或生成输出中，至少一个关键环节跨越文本以外模态。重点不是“是否使用 MLLM”，而是“是否引入了符合问题要求的跨模态 context”。</div>
+  </section>
+
+  <section class="section">
+    <h2>3｜多模态 RAG 的评估方法补充</h2>
+    <table class="matrix">
+      <tr><th>层级</th><th>建议指标</th><th>为什么重要</th></tr>
+      <tr><td>数据 / 知识库</td><td>覆盖率、源权威性、版本、权限、元数据完整性、OCR 损失、视觉元素可索引性</td><td>企业 RAG 的失败常来自“没有正确数据”或“数据不可检索”。</td></tr>
+      <tr><td>检索</td><td>Recall@k、MRR、nDCG、证据页命中、跨模态 query-doc 匹配、table/chart/image-heavy 子集表现</td><td>先看正确证据有没有进入候选集，再看排位。</td></tr>
+      <tr><td>Rerank / 证据选择</td><td>hard negative 分离、top-k 压缩后证据保留率、latency/cost、top-3/top-5 evidence accuracy</td><td>决定最终送入模型的 context 是否干净、集中、可用。</td></tr>
+      <tr><td>生成</td><td>answer correctness、faithfulness、context utilization、hallucination、abstention、冲突证据处理</td><td>答案是否正确，以及是否真的依赖检索证据。</td></tr>
+      <tr><td>Citation / grounding</td><td>文档级、页级、块级、图表区域级 citation precision/recall</td><td>多模态企业 RAG 的 trust 依赖“能不能验证”。</td></tr>
+      <tr><td>HCI / 业务任务</td><td>任务完成率、用时、验证负担、信任校准、用户控制、失败恢复、真实工作流采纳率</td><td>高可用不是 benchmark 分数，而是用户能否更好完成工作。</td></tr>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>4｜HCI / 企业视角：你这个方向很值得补</h2>
+    <div class="cols2">
+      <div class="card"><h3>企业沉淀了什么数据？</h3><p>文档、制度、合同、报告、手册、SOP、财报、图表、流程图、截图、扫描件、照片、视频帧、数据库、日志、知识图谱。每种数据都对应不同解析、分块、索引、权限、更新、引用方式。</p><p class="mini">研究问题：数据类型和数据质量如何决定 RAG 架构选择？</p></div>
+      <div class="card"><h3>企业人员如何使用 RAG？</h3><p>查询、核验、总结、对比、合规审查、排障、培训、销售支持、客服响应。不同用户对 citation、置信度、速度、可控性、解释方式的需求不同。</p><p class="mini">研究问题：怎样的证据呈现能降低验证负担并校准信任？</p></div>
+    </div>
+    <div class="stack researchq" style="margin-top:18px">
+      <div class="item blue"><h3>数据类型决定架构</h3><p>企业知识库中文本、表格、图表、截图、扫描件的比例，如何决定 text-RAG、vision-RAG、fusion-RAG 的选择？</p></div>
+      <div class="item green"><h3>证据呈现影响信任</h3><p>页码、区域高亮、source rank、置信度、冲突证据展示，会怎样改变专家验证行为？</p></div>
+      <div class="item purple"><h3>用户反馈反哺数据治理</h3><p>点击、追问、纠错、弃用行为能否帮助发现知识缺口、过期文档、错误 chunk、权限问题？</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>5｜多模态 RAG 一定需要多模态 LLM 吗？</h2>
+    <p class="lead">不一定。下面这个四象限能澄清“多模态 RAG”和“MLLM”的关系。</p>
+    <div class="arch">
+      <div class="card" style="border-color:#9fb6ff;background:var(--lb)"><h3>A. 文本化 MM-RAG</h3><p>图片/PDF/表格 → OCR/caption/解析 → text retriever → text LLM。适合 OCR 质量高、视觉布局不关键的场景。</p></div>
+      <div class="card" style="border-color:#91d9db;background:var(--lc)"><h3>B. 多模态检索 + 文本生成</h3><p>用 CLIP/ColPali 等视觉检索定位图页，再把证据转成文字给 text LLM。适合视觉用于定位、推理可文本化。</p></div>
+      <div class="card" style="border-color:#9ad29d;background:var(--lg)"><h3>C. 文本检索 + MLLM 阅读</h3><p>先用文本/元数据检索文档或页码，再把页面图像、图表、截图交给 MLLM 阅读。适合答案依赖视觉细节。</p></div>
+      <div class="card" style="border-color:#c4a4ff;background:var(--lp)"><h3>D. 全链路 MM-RAG</h3><p>多模态 query → 多模态 retriever/reranker → MLLM/Agent → 视觉 citation。适合复杂文档、图表、布局、多页推理。</p></div>
+    </div>
+    <div class="callout"><strong>判断规则：</strong>如果所需 evidence 可以无损转成文本，text LLM 足够；如果关键证据依赖视觉关系、布局、图表、区域定位或图像细节，就需要 MLLM 或视觉证据验证器。</div>
+  </section>
+
+  <section class="section">
+    <h2>6｜补充：Hybrid retrieval 和 Reranker</h2>
+    <div class="cols">
+      <div class="item blue"><h3>Hybrid retrieval</h3><p>第一阶段召回：BM25/keyword + dense vector + sparse vector + metadata/permission/time filter + RRF/score fusion。目标是让正确证据进入候选集。</p></div>
+      <div class="item orange"><h3>Reranker</h3><p>第二阶段精排：对 query-context pair 做更细判断，处理 hard negatives，把正确证据推到 top-3/top-5，减少塞给 LLM 的噪声。</p></div>
+      <div class="item green"><h3>能不能去掉？</h3><p>可以在高置信、简单查询、正确证据稳定 top-3/top-5 时跳过；复杂多跳、候选相似、需要视觉 citation 或高风险业务时建议 adaptive rerank。</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>参考入口</h2>
+    <ul class="refs">
+      <li><a href="https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html">RAG, NeurIPS 2020</a></li>
+      <li><a href="https://arxiv.org/abs/2210.02928">MuRAG, EMNLP 2022</a></li>
+      <li><a href="https://arxiv.org/abs/2407.01449">ColPali, ICLR 2025</a>；<a href="https://arxiv.org/abs/2410.10594">VisRAG, ICLR 2025</a></li>
+      <li><a href="https://aclanthology.org/2024.eacl-demo.16/">RAGAS</a>；<a href="https://aclanthology.org/2024.naacl-long.20/">ARES</a>；<a href="https://arxiv.org/abs/2408.08067">RAGChecker</a></li>
+      <li><a href="https://openreview.net/forum?id=Usklli4gMc">MRAG-Bench</a>；<a href="https://aclanthology.org/2025.acl-long.1528/">REAL-MM-RAG</a>；<a href="https://github.com/NEUIR/M2RAG">M²RAG</a>；<a href="https://github.com/zhaosuifeng/FinRAGBench-V">FinRAGBench-V</a>；<a href="https://double-bench.github.io/">Double-Bench</a></li>
+      <li><a href="https://www.microsoft.com/en-us/research/publication/guidelines-for-human-ai-interaction/">Guidelines for Human-AI Interaction, CHI 2019</a>；<a href="https://research.ibm.com/publications/exploring-trust-and-transparency-in-retrieval-augmented-generation-for-domain-experts">Trust & Transparency in RAG for Domain Experts, CHI 2025</a></li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	picretrieve_planner(picretrieve_planner)
+	modality_router(modality_router)
+	picretrieve(picretrieve)
+	reranker(reranker)
+	picretrieve_verifier(picretrieve_verifier)
+	picretrieve_reflection(picretrieve_reflection)
+	picretrieve_answer(picretrieve_answer)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> picretrieve_planner;
+	modality_router --> picretrieve;
+	picretrieve --> reranker;
+	picretrieve_planner -.-> modality_router;
+	picretrieve_planner -.-> picretrieve_answer;
+	picretrieve_reflection --> picretrieve;
+	picretrieve_verifier -.-> picretrieve_answer;
+	picretrieve_verifier -.-> picretrieve_reflection;
+	reranker --> picretrieve_verifier;
+	picretrieve_answer --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

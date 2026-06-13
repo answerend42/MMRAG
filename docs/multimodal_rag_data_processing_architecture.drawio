@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.0.4">
+  <diagram name="数据类型处理与索引">
+    <mxGraphModel dx="2300" dy="1500" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2300" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="多模态检索问答系统：数据类型处理与索引架构" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=28;fontStyle=1;fontColor=#172033;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="2220" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="不同数据类型进入系统后走不同解析、抽取、切分、索引和引用路径；最后统一成可重排、可校验、可引用的 evidence card。" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontColor=#5b6472;" vertex="1" parent="1">
+          <mxGeometry x="80" y="58" width="2140" height="28" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h1" value="数据类型与例子" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="60" y="105" width="310" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="专属处理方式" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="400" y="105" width="470" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" value="切分 / 中间产物" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="900" y="105" width="390" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="h4" value="索引与存储" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="105" width="370" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="h5" value="检索结果 / 引用粒度" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="105" width="520" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_text" value="文本 Text" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf0ff;strokeColor=#2b59c3;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="165" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="text_src" value="制度 / 合同 / 手册 / SOP&#xa;网页 / Markdown / PDF 文本&#xa;知识库文章 / FAQ / 邮件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2b59c3;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_text">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="text_proc" value="清洗与规范化&#xa;章节树、标题层级、段落边界&#xa;术语归一、元数据抽取、权限标记" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2b59c3;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_text">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="text_artifact" value="paragraph / sentence / title chunk&#xa;doc id / section id / version&#xa;摘要、关键词、实体标签" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2b59c3;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_text">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="text_index" value="BM25 / keyword index&#xa;dense vector / sparse vector&#xa;metadata / ACL index" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2b59c3;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_text">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="text_evidence" value="可引用证据：文档、章节、段落、句子、chunk id&#xa;适合事实问答、政策解释、合同条款核验、摘要对比。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf0ff;strokeColor=#2b59c3;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_text">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_image" value="图像 Image" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#e6f7f8;strokeColor=#34a0a4;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="315" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="image_src" value="截图 / 照片 / 扫描件&#xa;流程图 / 架构图 / 图表图片&#xa;票据、设备照片、UI 截图" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a0a4;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_image">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="image_proc" value="OCR + 文字框&#xa;VLM caption / tags / object labels&#xa;区域检测、裁剪、视觉质量检查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a0a4;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_image">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="image_artifact" value="global image embedding&#xa;region / patch embedding&#xa;OCR text + bbox / caption / tags" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a0a4;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_image">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="image_index" value="visual vector index&#xa;OCR text index&#xa;region bbox / object store" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#34a0a4;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_image">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="image_evidence" value="可引用证据：图片 id、区域坐标 bbox、OCR 框、caption&#xa;适合截图问答、设备识别、扫描件核验、视觉定位。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6f7f8;strokeColor=#34a0a4;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_image">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_video" value="视频 Video" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#f2e9ff;strokeColor=#7b2cbf;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="465" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="video_src" value="培训视频 / 会议录像&#xa;监控巡检 / 产品演示&#xa;操作录屏 / 访谈视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b2cbf;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_video">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="video_proc" value="镜头切分 / 场景切分&#xa;关键帧抽取、帧 caption&#xa;ASR 字幕、说话人、时间戳对齐" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b2cbf;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_video">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="video_artifact" value="video -> shot -> segment&#xa;keyframe image / transcript span&#xa;scene summary / timestamp range" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b2cbf;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_video">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="video_index" value="segment vector index&#xa;keyframe visual index&#xa;ASR text index / media object store" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b2cbf;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_video">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="video_evidence" value="可引用证据：视频 id、起止时间、关键帧、字幕片段&#xa;适合长视频定位、会议追溯、流程教学和事件核查。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2e9ff;strokeColor=#7b2cbf;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_video">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_table" value="表格 Table" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f77f00;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="615" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="table_src" value="财报 / 业务报表 / KPI 表&#xa;Excel / CSV / PDF 表格&#xa;数据库导出、审计表、清单表" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f77f00;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_table">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="table_proc" value="表格检测与结构恢复&#xa;表头、行列、合并单元格、单位归一&#xa;数值类型识别、公式/计算关系抽取" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f77f00;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_table">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="table_artifact" value="table schema / cells&#xa;row header / column header&#xa;table facts / chart facts / calc trace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f77f00;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_table">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="table_index" value="structured table store&#xa;cell / row / column index&#xa;text + vector index for table facts" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f77f00;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_table">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="table_evidence" value="可引用证据：表名、页码、行列坐标、单元格、计算过程&#xa;适合财报问答、报表对比、数值核验和表格计算。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f77f00;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_table">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_audio" value="音频 Audio" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#e9f5ea;strokeColor=#2e7d32;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="765" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="audio_src" value="会议录音 / 客服录音&#xa;访谈 / 播客 / 语音留言&#xa;电话录音、现场录音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_audio">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="audio_proc" value="ASR 转写&#xa;说话人分离、静音切分&#xa;时间戳对齐、关键词与主题抽取" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_audio">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="audio_artifact" value="utterance / speaker turn&#xa;transcript span / timestamp&#xa;summary / topic / acoustic feature" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_audio">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="audio_index" value="ASR text index&#xa;audio segment vector index&#xa;speaker / timestamp metadata" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_audio">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="audio_evidence" value="可引用证据：音频 id、说话人、起止时间、原文转写&#xa;适合会议纪要、客服质检、访谈检索和时间定位。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9f5ea;strokeColor=#2e7d32;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_audio">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_db" value="数据库 Database" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#fdeaea;strokeColor=#c1121f;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="915" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="db_src" value="业务数据库 / ERP / CRM&#xa;交易流水 / 库存 / 订单&#xa;日志、时序指标、审计记录" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c1121f;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_db">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="db_proc" value="schema introspection&#xa;数据字典、字段含义、主外键关系&#xa;实体链接、SQL 生成、结果校验" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c1121f;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_db">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="db_artifact" value="schema description&#xa;validated SQL / result table&#xa;query plan / row provenance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c1121f;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_db">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="db_index" value="SQL executor / warehouse&#xa;schema vector index&#xa;log / time-series index" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c1121f;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_db">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="db_evidence" value="可引用证据：SQL、结果表、行记录、字段、时间范围&#xa;适合指标查询、经营分析、审计追溯和日志排障。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdeaea;strokeColor=#c1121f;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_db">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lane_kg" value="知识图谱 Knowledge Graph" style="swimlane;startSize=28;rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#172033;fontStyle=1;fontSize=13;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1065" width="2200" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="kg_src" value="实体关系 / 组织架构&#xa;产品依赖 / 事件图 / 规则图&#xa;人员、设备、地点、流程关系" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_kg">
+          <mxGeometry x="22" y="43" width="295" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="kg_proc" value="实体抽取与链接&#xa;关系归一、路径扩展、子图召回&#xa;约束检查、图规则推理、多跳路径搜索" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_kg">
+          <mxGeometry x="352" y="43" width="440" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="kg_artifact" value="entity / relation / triple&#xa;path / subgraph / rule hit&#xa;linked documents / confidence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_kg">
+          <mxGeometry x="842" y="43" width="360" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="kg_index" value="graph database / triple store&#xa;entity index / relation index&#xa;subgraph cache / linked evidence" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#172033;fontSize=12;" vertex="1" parent="lane_kg">
+          <mxGeometry x="1255" y="38" width="340" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="kg_evidence" value="可引用证据：实体、关系、三元组、路径、子图和关联文档&#xa;适合多跳推理、关系解释、影响分析和规则校验。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#172033;fontSize=12;fontStyle=1;" vertex="1" parent="lane_kg">
+          <mxGeometry x="1672" y="43" width="480" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="unified" value="统一候选证据格式 Evidence Card&#xa;id / modality / source / content / raw_ref / retrieval_score / rerank_score / support_score / citation_anchor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172033;strokeColor=#172033;fontColor=#ffffff;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1240" width="760" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rerank" value="统一融合与重排&#xa;先按模态独立召回，再跨模态重排；避免把不同模态过早压成一个不可解释分数。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f77f00;fontColor=#172033;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="1240" width="500" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="governance" value="数据治理反馈&#xa;低质量 OCR、解析失败、错误 chunk、过期文档、权限问题、缺失 schema、实体链接错误会回流到对应数据类型处理链。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9f5ea;strokeColor=#2e7d32;fontColor=#172033;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1340" width="1310" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="text_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2b59c3;endArrow=block;endFill=1;" edge="1" parent="1" source="text_src" target="text_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="text_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2b59c3;endArrow=block;endFill=1;" edge="1" parent="1" source="text_proc" target="text_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="text_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2b59c3;endArrow=block;endFill=1;" edge="1" parent="1" source="text_artifact" target="text_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="text_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2b59c3;endArrow=block;endFill=1;" edge="1" parent="1" source="text_index" target="text_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="image_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#34a0a4;endArrow=block;endFill=1;" edge="1" parent="1" source="image_src" target="image_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="image_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#34a0a4;endArrow=block;endFill=1;" edge="1" parent="1" source="image_proc" target="image_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="image_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#34a0a4;endArrow=block;endFill=1;" edge="1" parent="1" source="image_artifact" target="image_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="image_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#34a0a4;endArrow=block;endFill=1;" edge="1" parent="1" source="image_index" target="image_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="video_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7b2cbf;endArrow=block;endFill=1;" edge="1" parent="1" source="video_src" target="video_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="video_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7b2cbf;endArrow=block;endFill=1;" edge="1" parent="1" source="video_proc" target="video_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="video_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7b2cbf;endArrow=block;endFill=1;" edge="1" parent="1" source="video_artifact" target="video_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="video_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7b2cbf;endArrow=block;endFill=1;" edge="1" parent="1" source="video_index" target="video_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="table_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f77f00;endArrow=block;endFill=1;" edge="1" parent="1" source="table_src" target="table_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="table_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f77f00;endArrow=block;endFill=1;" edge="1" parent="1" source="table_proc" target="table_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="table_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f77f00;endArrow=block;endFill=1;" edge="1" parent="1" source="table_artifact" target="table_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="table_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f77f00;endArrow=block;endFill=1;" edge="1" parent="1" source="table_index" target="table_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="audio_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2e7d32;endArrow=block;endFill=1;" edge="1" parent="1" source="audio_src" target="audio_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="audio_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2e7d32;endArrow=block;endFill=1;" edge="1" parent="1" source="audio_proc" target="audio_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="audio_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2e7d32;endArrow=block;endFill=1;" edge="1" parent="1" source="audio_artifact" target="audio_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="audio_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2e7d32;endArrow=block;endFill=1;" edge="1" parent="1" source="audio_index" target="audio_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="db_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#c1121f;endArrow=block;endFill=1;" edge="1" parent="1" source="db_src" target="db_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="db_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#c1121f;endArrow=block;endFill=1;" edge="1" parent="1" source="db_proc" target="db_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="db_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#c1121f;endArrow=block;endFill=1;" edge="1" parent="1" source="db_artifact" target="db_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="db_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#c1121f;endArrow=block;endFill=1;" edge="1" parent="1" source="db_index" target="db_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="kg_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;endArrow=block;endFill=1;" edge="1" parent="1" source="kg_src" target="kg_proc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;endArrow=block;endFill=1;" edge="1" parent="1" source="kg_proc" target="kg_artifact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;endArrow=block;endFill=1;" edge="1" parent="1" source="kg_artifact" target="kg_index"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="kg_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;endArrow=block;endFill=1;" edge="1" parent="1" source="kg_index" target="kg_evidence"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="unified_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#172033;endArrow=block;endFill=1;" edge="1" parent="1" source="unified" target="rerank"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

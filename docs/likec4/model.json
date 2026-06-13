@@ -1,0 +1,5405 @@
+{
+  "_stage": "layouted",
+  "projectId": "mmrag",
+  "project": {
+    "id": "mmrag",
+    "title": "MMRAG Architecture"
+  },
+  "specification": {
+    "tags": {},
+    "elements": {
+      "actor": {
+        "style": {}
+      },
+      "system": {
+        "style": {}
+      },
+      "container": {
+        "style": {}
+      },
+      "component": {
+        "style": {}
+      },
+      "store": {
+        "style": {}
+      },
+      "external": {
+        "style": {}
+      }
+    },
+    "relationships": {},
+    "deployments": {},
+    "customColors": {}
+  },
+  "elements": {
+    "user": {
+      "style": {},
+      "description": {
+        "txt": "提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。"
+      },
+      "title": "研究 / 演示用户",
+      "kind": "actor",
+      "id": "user"
+    },
+    "lmstudio": {
+      "style": {},
+      "technology": "OpenAI-compatible API",
+      "description": {
+        "txt": "本地多模态大语言模型服务，负责规划、验证和回答。"
+      },
+      "title": "LM Studio / Gemma4",
+      "kind": "external",
+      "id": "lmstudio"
+    },
+    "picretrieve_pkg": {
+      "style": {},
+      "technology": "CLIP image retrieval",
+      "description": {
+        "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+      },
+      "title": "PicRetrieve 本地包",
+      "kind": "external",
+      "id": "picretrieve_pkg"
+    },
+    "mmrag": {
+      "style": {},
+      "description": {
+        "txt": "PicRetrieve-first 的多模态 Agent 原型；用 LangGraph 编排，用本地 LLM 做规划、验证和回答。"
+      },
+      "title": "MMRAG 图片召回 Agent",
+      "kind": "system",
+      "id": "mmrag"
+    },
+    "mmrag.web": {
+      "style": {},
+      "technology": "FastAPI + HTML/CSS/JS + SSE",
+      "description": {
+        "txt": "提供浏览器界面、状态接口、图片接口和流式问答接口。"
+      },
+      "title": "FastAPI 演示应用",
+      "kind": "container",
+      "id": "mmrag.web"
+    },
+    "mmrag.graph": {
+      "style": {},
+      "technology": "LangGraph StateGraph",
+      "description": {
+        "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+      },
+      "title": "LangGraph Agent 运行时",
+      "kind": "container",
+      "id": "mmrag.graph"
+    },
+    "mmrag.registry": {
+      "style": {},
+      "technology": "dict[Modality, Retriever]",
+      "description": {
+        "txt": "系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。"
+      },
+      "title": "召回模块注册表",
+      "kind": "container",
+      "id": "mmrag.registry"
+    },
+    "mmrag.local_assets": {
+      "style": {},
+      "technology": "SQLite + NumPy + image files",
+      "description": {
+        "txt": "PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。"
+      },
+      "title": "本地图片索引与语料",
+      "kind": "store",
+      "id": "mmrag.local_assets"
+    },
+    "mmrag.web.browser_ui": {
+      "style": {},
+      "technology": "Single-page HTML",
+      "description": {
+        "txt": "模拟主流大模型输入框，展示节点状态、耗时、证据卡片和最终回答。"
+      },
+      "title": "浏览器界面",
+      "kind": "component",
+      "id": "mmrag.web.browser_ui"
+    },
+    "mmrag.web.agent_api": {
+      "style": {},
+      "technology": "FastAPI",
+      "description": {
+        "txt": "创建运行状态，调用 LangGraph，并把节点级进度转成 SSE 事件。"
+      },
+      "title": "Agent API / SSE",
+      "kind": "component",
+      "id": "mmrag.web.agent_api"
+    },
+    "mmrag.graph.picretrieve_planner": {
+      "style": {},
+      "technology": "Gemma4 + strict JSON schema",
+      "description": {
+        "txt": "把纯文本、纯图片或图文混合输入转为结构化 QueryPlan。"
+      },
+      "title": "picretrieve_planner",
+      "kind": "component",
+      "id": "mmrag.graph.picretrieve_planner"
+    },
+    "mmrag.graph.modality_router": {
+      "style": {},
+      "technology": "QueryPlan -> RetrievalPlan",
+      "description": {
+        "txt": "决定文本搜图、以图搜图或显式图文混合检索。"
+      },
+      "title": "modality_router",
+      "kind": "component",
+      "id": "mmrag.graph.modality_router"
+    },
+    "mmrag.graph.picretrieve": {
+      "style": {},
+      "technology": "Retriever registry dispatch",
+      "description": {
+        "txt": "按 RetrievalTask 的 modality 调用已注册召回模块。"
+      },
+      "title": "picretrieve",
+      "kind": "component",
+      "id": "mmrag.graph.picretrieve"
+    },
+    "mmrag.graph.reranker": {
+      "style": {},
+      "technology": "score sort + deduplicate",
+      "description": {
+        "txt": "对 EvidenceCard 去重并按分数排序。"
+      },
+      "title": "reranker",
+      "kind": "component",
+      "id": "mmrag.graph.reranker"
+    },
+    "mmrag.graph.picretrieve_verifier": {
+      "style": {},
+      "technology": "Gemma4",
+      "description": {
+        "txt": "判断候选图片是否充分，必要时产出改进 query。"
+      },
+      "title": "picretrieve_verifier",
+      "kind": "component",
+      "id": "mmrag.graph.picretrieve_verifier"
+    },
+    "mmrag.graph.picretrieve_reflection": {
+      "style": {},
+      "technology": "LangGraph retry edge",
+      "description": {
+        "txt": "在 retry budget 内把验证反馈转换为新的检索计划。"
+      },
+      "title": "picretrieve_reflection",
+      "kind": "component",
+      "id": "mmrag.graph.picretrieve_reflection"
+    },
+    "mmrag.graph.picretrieve_answer": {
+      "style": {},
+      "technology": "Gemma4",
+      "description": {
+        "txt": "生成最终中文说明，解释本轮图片召回结果。"
+      },
+      "title": "picretrieve_answer",
+      "kind": "component",
+      "id": "mmrag.graph.picretrieve_answer"
+    },
+    "mmrag.registry.image_retriever": {
+      "style": {},
+      "technology": "mrag.retrievers.ImageRetriever",
+      "description": {
+        "txt": "封装 PicRetrieve 的 search_by_text 与 search_by_image，并转换为 EvidenceCard。"
+      },
+      "title": "ImageRetriever 适配器",
+      "kind": "component",
+      "id": "mmrag.registry.image_retriever"
+    },
+    "mmrag.registry.future_modules": {
+      "style": {},
+      "technology": "Retriever protocol",
+      "description": {
+        "txt": "为文本、页面、文档、音频、视频、表格、SQL 或知识图谱模块预留。"
+      },
+      "title": "后续召回模块",
+      "kind": "component",
+      "id": "mmrag.registry.future_modules"
+    }
+  },
+  "relations": {
+    "14gd1y1": {
+      "title": "提交图文检索请求",
+      "source": {
+        "model": "user"
+      },
+      "target": {
+        "model": "mmrag"
+      },
+      "id": "14gd1y1"
+    },
+    "zjrfyw": {
+      "title": "规划、验证、生成回答",
+      "source": {
+        "model": "mmrag"
+      },
+      "target": {
+        "model": "lmstudio"
+      },
+      "id": "zjrfyw"
+    },
+    "53u44d": {
+      "title": "调用图片召回能力",
+      "source": {
+        "model": "mmrag"
+      },
+      "target": {
+        "model": "picretrieve_pkg"
+      },
+      "id": "53u44d"
+    },
+    "1est485": {
+      "title": "输入文本和/或上传查询图片",
+      "source": {
+        "model": "user"
+      },
+      "target": {
+        "model": "mmrag.web.browser_ui"
+      },
+      "id": "1est485"
+    },
+    "1dvt09t": {
+      "title": "POST /api/ask/stream",
+      "source": {
+        "model": "mmrag.web.browser_ui"
+      },
+      "target": {
+        "model": "mmrag.web.agent_api"
+      },
+      "id": "1dvt09t"
+    },
+    "cdcyd9": {
+      "title": "调用 graph.stream",
+      "source": {
+        "model": "mmrag.web.agent_api"
+      },
+      "target": {
+        "model": "mmrag.graph"
+      },
+      "id": "cdcyd9"
+    },
+    "4g9s3l": {
+      "title": "多模态理解并返回严格 JSON",
+      "source": {
+        "model": "mmrag.graph.picretrieve_planner"
+      },
+      "target": {
+        "model": "lmstudio"
+      },
+      "id": "4g9s3l"
+    },
+    "oadgfm": {
+      "title": "QueryPlan",
+      "source": {
+        "model": "mmrag.graph.picretrieve_planner"
+      },
+      "target": {
+        "model": "mmrag.graph.modality_router"
+      },
+      "id": "oadgfm"
+    },
+    "1aw3edg": {
+      "title": "RetrievalPlan",
+      "source": {
+        "model": "mmrag.graph.modality_router"
+      },
+      "target": {
+        "model": "mmrag.graph.picretrieve"
+      },
+      "id": "1aw3edg"
+    },
+    "sthjvn": {
+      "title": "分发图片召回任务",
+      "source": {
+        "model": "mmrag.graph.picretrieve"
+      },
+      "target": {
+        "model": "mmrag.registry.image_retriever"
+      },
+      "id": "sthjvn"
+    },
+    "ck2af3": {
+      "title": "search_by_text / search_by_image",
+      "source": {
+        "model": "mmrag.registry.image_retriever"
+      },
+      "target": {
+        "model": "picretrieve_pkg"
+      },
+      "id": "ck2af3"
+    },
+    "g79dcg": {
+      "title": "读取向量、元数据和图片",
+      "source": {
+        "model": "picretrieve_pkg"
+      },
+      "target": {
+        "model": "mmrag.local_assets"
+      },
+      "id": "g79dcg"
+    },
+    "1c1ktfx": {
+      "title": "EvidenceCards",
+      "source": {
+        "model": "mmrag.graph.picretrieve"
+      },
+      "target": {
+        "model": "mmrag.graph.reranker"
+      },
+      "id": "1c1ktfx"
+    },
+    "1tlt7cz": {
+      "title": "排序后的候选结果",
+      "source": {
+        "model": "mmrag.graph.reranker"
+      },
+      "target": {
+        "model": "mmrag.graph.picretrieve_verifier"
+      },
+      "id": "1tlt7cz"
+    },
+    "11dgi43": {
+      "title": "验证召回是否充分",
+      "source": {
+        "model": "mmrag.graph.picretrieve_verifier"
+      },
+      "target": {
+        "model": "lmstudio"
+      },
+      "id": "11dgi43"
+    },
+    "npvtmf": {
+      "title": "可选重试反馈",
+      "source": {
+        "model": "mmrag.graph.picretrieve_verifier"
+      },
+      "target": {
+        "model": "mmrag.graph.picretrieve_reflection"
+      },
+      "id": "npvtmf"
+    },
+    "1075gcy": {
+      "title": "重试 RetrievalPlan",
+      "source": {
+        "model": "mmrag.graph.picretrieve_reflection"
+      },
+      "target": {
+        "model": "mmrag.graph.picretrieve"
+      },
+      "id": "1075gcy"
+    },
+    "h8kk9z": {
+      "title": "通过验证的候选结果",
+      "source": {
+        "model": "mmrag.graph.picretrieve_verifier"
+      },
+      "target": {
+        "model": "mmrag.graph.picretrieve_answer"
+      },
+      "id": "h8kk9z"
+    },
+    "4ff906": {
+      "title": "生成最终总结",
+      "source": {
+        "model": "mmrag.graph.picretrieve_answer"
+      },
+      "target": {
+        "model": "lmstudio"
+      },
+      "id": "4ff906"
+    },
+    "57ivvg": {
+      "title": "最终状态",
+      "source": {
+        "model": "mmrag.graph.picretrieve_answer"
+      },
+      "target": {
+        "model": "mmrag.web.agent_api"
+      },
+      "id": "57ivvg"
+    },
+    "1ddhra7": {
+      "title": "SSE 事件和最终结果",
+      "source": {
+        "model": "mmrag.web.agent_api"
+      },
+      "target": {
+        "model": "mmrag.web.browser_ui"
+      },
+      "id": "1ddhra7"
+    },
+    "h35xe9": {
+      "title": "未来按 modality 扩展分发",
+      "source": {
+        "model": "mmrag.graph.picretrieve"
+      },
+      "target": {
+        "model": "mmrag.registry.future_modules"
+      },
+      "id": "h35xe9"
+    }
+  },
+  "globals": {
+    "predicates": {},
+    "dynamicPredicates": {},
+    "styles": {}
+  },
+  "views": {
+    "index": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": {
+        "txt": "展示用户、MMRAG 系统以及本地 LLM / PicRetrieve 外部依赖。"
+      },
+      "title": "C1 系统上下文：MMRAG 图片召回 Agent",
+      "id": "index",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "4DzZMbUxD2W1UvqVlZMl1Kq50inj31X0bYDw_ed_z7I",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1724,
+        "height": 470
+      },
+      "nodes": [
+        {
+          "id": "user",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1jvmm5r"
+          ],
+          "title": "研究 / 演示用户",
+          "modelRef": "user",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 152,
+          "width": 486,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 65,
+            "width": 450,
+            "height": 47
+          }
+        },
+        {
+          "id": "mmrag",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "1jvmm5r",
+            "1a9859l"
+          ],
+          "outEdges": [
+            "8id2bz",
+            "vbog15"
+          ],
+          "title": "MMRAG 图片召回 Agent",
+          "modelRef": "mmrag",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve-first 的多模态 Agent 原型；用 LangGraph 编排，用本地 LLM 做规划、验证和回答。"
+          },
+          "tags": [],
+          "kind": "system",
+          "navigateTo": "c2Containers",
+          "x": 706,
+          "y": 152,
+          "width": 376,
+          "height": 180,
+          "labelBBox": {
+            "x": 17,
+            "y": 56,
+            "width": 341,
+            "height": 65
+          }
+        },
+        {
+          "id": "lmstudio",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "8id2bz"
+          ],
+          "outEdges": [],
+          "title": "LM Studio / Gemma4",
+          "modelRef": "lmstudio",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "本地多模态大语言模型服务，负责规划、验证和回答。"
+          },
+          "tags": [],
+          "technology": "OpenAI-compatible API",
+          "kind": "external",
+          "x": 1361,
+          "y": 0,
+          "width": 340,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 304,
+            "height": 67
+          }
+        },
+        {
+          "id": "picretrieve_pkg",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "vbog15"
+          ],
+          "outEdges": [
+            "1a9859l"
+          ],
+          "title": "PicRetrieve 本地包",
+          "modelRef": "picretrieve_pkg",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+          },
+          "tags": [],
+          "technology": "CLIP image retrieval",
+          "kind": "external",
+          "x": 1337,
+          "y": 290,
+          "width": 387,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 352,
+            "height": 85
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "1jvmm5r",
+          "source": "user",
+          "target": "mmrag",
+          "label": "提交图文检索请求",
+          "points": [
+            [
+              486,
+              242
+            ],
+            [
+              555,
+              242
+            ],
+            [
+              629,
+              242
+            ],
+            [
+              695,
+              242
+            ]
+          ],
+          "labelBBox": {
+            "x": 547,
+            "y": 220,
+            "width": 97,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "14gd1y1",
+            "1est485"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "8id2bz",
+          "source": "mmrag",
+          "target": "lmstudio",
+          "label": "规划、验证、生成回答",
+          "points": [
+            [
+              1082,
+              197
+            ],
+            [
+              1167,
+              177
+            ],
+            [
+              1267,
+              153
+            ],
+            [
+              1350,
+              133
+            ]
+          ],
+          "labelBBox": {
+            "x": 1149,
+            "y": 131,
+            "width": 121,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "zjrfyw",
+            "4g9s3l",
+            "11dgi43",
+            "4ff906"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "vbog15",
+          "source": "mmrag",
+          "target": "picretrieve_pkg",
+          "label": "调用图片召回能力",
+          "points": [
+            [
+              1082,
+              283
+            ],
+            [
+              1159,
+              299
+            ],
+            [
+              1248,
+              319
+            ],
+            [
+              1327,
+              336
+            ]
+          ],
+          "labelBBox": {
+            "x": 1161,
+            "y": 277,
+            "width": 97,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "53u44d",
+            "ck2af3"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1a9859l",
+          "source": "picretrieve_pkg",
+          "target": "mmrag",
+          "label": "读取向量、元数据和图片",
+          "points": [
+            [
+              1337,
+              394
+            ],
+            [
+              1274,
+              394
+            ],
+            [
+              1205,
+              389
+            ],
+            [
+              1142,
+              373
+            ],
+            [
+              1110,
+              365
+            ],
+            [
+              1078,
+              351
+            ],
+            [
+              1047,
+              337
+            ]
+          ],
+          "labelBBox": {
+            "x": 1143,
+            "y": 351,
+            "width": 132,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "g79dcg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "c2Containers": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "mmrag",
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": {
+        "txt": "展示 FastAPI、LangGraph、模块注册表和本地图片资产之间的关系。"
+      },
+      "title": "C2 容器图：MMRAG 运行时",
+      "id": "c2Containers",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "puhggx4Xp_2gysG85VrENzEXG53vHedEVHNv3agm6eI",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 3117,
+        "height": 970
+      },
+      "nodes": [
+        {
+          "id": "user",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1khkkr5"
+          ],
+          "title": "研究 / 演示用户",
+          "modelRef": "user",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 69,
+          "width": 486,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 65,
+            "width": 450,
+            "height": 47
+          }
+        },
+        {
+          "id": "picretrieve_pkg",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "72byc2"
+          ],
+          "outEdges": [
+            "owxdiu"
+          ],
+          "title": "PicRetrieve 本地包",
+          "modelRef": "picretrieve_pkg",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+          },
+          "tags": [],
+          "technology": "CLIP image retrieval",
+          "kind": "external",
+          "x": 2729,
+          "y": 790,
+          "width": 387,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 352,
+            "height": 85
+          }
+        },
+        {
+          "id": "mmrag",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.web",
+            "mmrag.local_assets",
+            "mmrag.graph",
+            "mmrag.registry"
+          ],
+          "inEdges": [
+            "1khkkr5",
+            "owxdiu"
+          ],
+          "outEdges": [
+            "im6yvh",
+            "72byc2"
+          ],
+          "title": "MMRAG 图片召回 Agent",
+          "modelRef": "mmrag",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve-first 的多模态 Agent 原型；用 LangGraph 编排，用本地 LLM 做规划、验证和回答。"
+          },
+          "tags": [],
+          "kind": "system",
+          "depth": 1,
+          "x": 716,
+          "y": 8,
+          "width": 1710,
+          "height": 571,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 128,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.web",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1khkkr5",
+            "4t9drq"
+          ],
+          "outEdges": [
+            "mayn7a"
+          ],
+          "title": "FastAPI 演示应用",
+          "modelRef": "mmrag.web",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提供浏览器界面、状态接口、图片接口和流式问答接口。"
+          },
+          "tags": [],
+          "technology": "FastAPI + HTML/CSS/JS + SSE",
+          "kind": "container",
+          "navigateTo": "c3WebComponents",
+          "x": 766,
+          "y": 69,
+          "width": 352,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 317,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.local_assets",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "owxdiu"
+          ],
+          "outEdges": [],
+          "title": "本地图片索引与语料",
+          "modelRef": "mmrag.local_assets",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。"
+          },
+          "tags": [],
+          "technology": "SQLite + NumPy + image files",
+          "kind": "store",
+          "x": 756,
+          "y": 359,
+          "width": 372,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 37,
+            "width": 337,
+            "height": 103
+          }
+        },
+        {
+          "id": "mmrag.graph",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "mayn7a"
+          ],
+          "outEdges": [
+            "4t9drq",
+            "11gt6ib",
+            "im6yvh"
+          ],
+          "title": "LangGraph Agent 运行时",
+          "modelRef": "mmrag.graph",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+          },
+          "tags": [],
+          "technology": "LangGraph StateGraph",
+          "kind": "container",
+          "navigateTo": "c3AgentComponents",
+          "x": 1365,
+          "y": 207,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 25,
+            "y": 55,
+            "width": 270,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.registry",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "11gt6ib"
+          ],
+          "outEdges": [
+            "72byc2"
+          ],
+          "title": "召回模块注册表",
+          "modelRef": "mmrag.registry",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。"
+          },
+          "tags": [],
+          "technology": "dict[Modality, Retriever]",
+          "kind": "container",
+          "navigateTo": "c3RegistryComponents",
+          "x": 1939,
+          "y": 207,
+          "width": 446,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 411,
+            "height": 67
+          }
+        },
+        {
+          "id": "lmstudio",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "im6yvh"
+          ],
+          "outEdges": [],
+          "title": "LM Studio / Gemma4",
+          "modelRef": "lmstudio",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "本地多模态大语言模型服务，负责规划、验证和回答。"
+          },
+          "tags": [],
+          "technology": "OpenAI-compatible API",
+          "kind": "external",
+          "x": 1992,
+          "y": 619,
+          "width": 340,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 304,
+            "height": 67
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "1khkkr5",
+          "source": "user",
+          "target": "mmrag.web",
+          "label": "输入文本和/或上传查询图片",
+          "points": [
+            [
+              486,
+              159
+            ],
+            [
+              574,
+              159
+            ],
+            [
+              673,
+              159
+            ],
+            [
+              756,
+              159
+            ]
+          ],
+          "labelBBox": {
+            "x": 547,
+            "y": 137,
+            "width": 148,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "1est485"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "owxdiu",
+          "source": "picretrieve_pkg",
+          "target": "mmrag.local_assets",
+          "label": "读取向量、元数据和图片",
+          "points": [
+            [
+              2729,
+              895
+            ],
+            [
+              2529,
+              906
+            ],
+            [
+              2209,
+              911
+            ],
+            [
+              1939,
+              854
+            ],
+            [
+              1639,
+              791
+            ],
+            [
+              1314,
+              642
+            ],
+            [
+              1120,
+              544
+            ]
+          ],
+          "labelBBox": {
+            "x": 1746,
+            "y": 784,
+            "width": 132,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "g79dcg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "mayn7a",
+          "source": "mmrag.web",
+          "target": "mmrag.graph",
+          "label": "调用 graph.stream",
+          "points": [
+            [
+              1060,
+              249
+            ],
+            [
+              1099,
+              274
+            ],
+            [
+              1144,
+              297
+            ],
+            [
+              1189,
+              310
+            ],
+            [
+              1242,
+              325
+            ],
+            [
+              1301,
+              327
+            ],
+            [
+              1355,
+              324
+            ]
+          ],
+          "labelBBox": {
+            "x": 1190,
+            "y": 288,
+            "width": 114,
+            "height": 18
+          },
+          "parent": "mmrag",
+          "relations": [
+            "cdcyd9"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "4t9drq",
+          "source": "mmrag.graph",
+          "target": "mmrag.web",
+          "label": "最终状态",
+          "points": [
+            [
+              1365,
+              259
+            ],
+            [
+              1292,
+              242
+            ],
+            [
+              1205,
+              221
+            ],
+            [
+              1129,
+              203
+            ]
+          ],
+          "labelBBox": {
+            "x": 1221,
+            "y": 198,
+            "width": 51,
+            "height": 18
+          },
+          "parent": "mmrag",
+          "relations": [
+            "57ivvg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "11gt6ib",
+          "source": "mmrag.graph",
+          "target": "mmrag.registry",
+          "label": "[...]",
+          "points": [
+            [
+              1684,
+              297
+            ],
+            [
+              1758,
+              297
+            ],
+            [
+              1847,
+              297
+            ],
+            [
+              1929,
+              297
+            ]
+          ],
+          "labelBBox": {
+            "x": 1799,
+            "y": 273,
+            "width": 25,
+            "height": 18
+          },
+          "parent": "mmrag",
+          "relations": [
+            "sthjvn",
+            "h35xe9"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "im6yvh",
+          "source": "mmrag.graph",
+          "target": "lmstudio",
+          "label": "[...]",
+          "points": [
+            [
+              1633,
+              387
+            ],
+            [
+              1714,
+              452
+            ],
+            [
+              1829,
+              541
+            ],
+            [
+              1939,
+              606
+            ],
+            [
+              1953,
+              614
+            ],
+            [
+              1968,
+              623
+            ],
+            [
+              1983,
+              631
+            ]
+          ],
+          "labelBBox": {
+            "x": 1799,
+            "y": 455,
+            "width": 25,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "4g9s3l",
+            "11dgi43",
+            "4ff906"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "72byc2",
+          "source": "mmrag.registry",
+          "target": "picretrieve_pkg",
+          "label": "search_by_text / search_by_image",
+          "points": [
+            [
+              2280,
+              387
+            ],
+            [
+              2420,
+              494
+            ],
+            [
+              2653,
+              674
+            ],
+            [
+              2797,
+              784
+            ]
+          ],
+          "labelBBox": {
+            "x": 2447,
+            "y": 497,
+            "width": 221,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "ck2af3"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "c3WebComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "mmrag.web",
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": {
+        "txt": "展示浏览器界面和 Agent API / SSE 如何连接 LangGraph。"
+      },
+      "title": "C3 组件图：FastAPI 演示应用",
+      "id": "c3WebComponents",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "l7S6qRqce53-2a-gs23np8sqCzLrNOj_iAssz5uutis",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1745,
+        "height": 610
+      },
+      "nodes": [
+        {
+          "id": "user",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "6j6yts"
+          ],
+          "title": "研究 / 演示用户",
+          "modelRef": "user",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 382,
+          "width": 486,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 65,
+            "width": 450,
+            "height": 47
+          }
+        },
+        {
+          "id": "mmrag.graph",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "p6dpdy"
+          ],
+          "outEdges": [
+            "1hqqtza"
+          ],
+          "title": "LangGraph Agent 运行时",
+          "modelRef": "mmrag.graph",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+          },
+          "tags": [],
+          "technology": "LangGraph StateGraph",
+          "kind": "container",
+          "navigateTo": "c3AgentComponents",
+          "x": 1425,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 25,
+            "y": 55,
+            "width": 270,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.web",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.web.browser_ui",
+            "mmrag.web.agent_api"
+          ],
+          "inEdges": [
+            "6j6yts",
+            "1hqqtza"
+          ],
+          "outEdges": [
+            "p6dpdy"
+          ],
+          "title": "FastAPI 演示应用",
+          "modelRef": "mmrag.web",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提供浏览器界面、状态接口、图片接口和流式问答接口。"
+          },
+          "tags": [],
+          "technology": "FastAPI + HTML/CSS/JS + SSE",
+          "kind": "container",
+          "depth": 1,
+          "x": 716,
+          "y": 8,
+          "width": 513,
+          "height": 594,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 91,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.web.browser_ui",
+          "parent": "mmrag.web",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "6j6yts",
+            "3j5nq3"
+          ],
+          "outEdges": [
+            "1fmoe3f"
+          ],
+          "title": "浏览器界面",
+          "modelRef": "mmrag.web.browser_ui",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "模拟主流大模型输入框，展示节点状态、耗时、证据卡片和最终回答。"
+          },
+          "tags": [],
+          "technology": "Single-page HTML",
+          "kind": "component",
+          "x": 758,
+          "y": 382,
+          "width": 427,
+          "height": 180,
+          "labelBBox": {
+            "x": 19,
+            "y": 55,
+            "width": 392,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.web.agent_api",
+          "parent": "mmrag.web",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1hqqtza",
+            "1fmoe3f"
+          ],
+          "outEdges": [
+            "3j5nq3",
+            "p6dpdy"
+          ],
+          "title": "Agent API / SSE",
+          "modelRef": "mmrag.web.agent_api",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "创建运行状态，调用 LangGraph，并把节点级进度转成 SSE 事件。"
+          },
+          "tags": [],
+          "technology": "FastAPI",
+          "kind": "component",
+          "x": 756,
+          "y": 69,
+          "width": 432,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 397,
+            "height": 67
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "6j6yts",
+          "source": "user",
+          "target": "mmrag.web.browser_ui",
+          "label": "输入文本和/或上传查询图片",
+          "points": [
+            [
+              486,
+              472
+            ],
+            [
+              571,
+              472
+            ],
+            [
+              665,
+              472
+            ],
+            [
+              748,
+              472
+            ]
+          ],
+          "labelBBox": {
+            "x": 547,
+            "y": 450,
+            "width": 148,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "1est485"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1hqqtza",
+          "source": "mmrag.graph",
+          "target": "mmrag.web.agent_api",
+          "label": "最终状态",
+          "points": [
+            [
+              1425,
+              226
+            ],
+            [
+              1405,
+              232
+            ],
+            [
+              1384,
+              237
+            ],
+            [
+              1364,
+              241
+            ],
+            [
+              1311,
+              251
+            ],
+            [
+              1253,
+              247
+            ],
+            [
+              1199,
+              236
+            ]
+          ],
+          "labelBBox": {
+            "x": 1281,
+            "y": 219,
+            "width": 51,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "57ivvg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1fmoe3f",
+          "source": "mmrag.web.browser_ui",
+          "target": "mmrag.web.agent_api",
+          "label": "POST /api/ask/stream",
+          "points": [
+            [
+              972,
+              382
+            ],
+            [
+              972,
+              344
+            ],
+            [
+              972,
+              299
+            ],
+            [
+              972,
+              259
+            ]
+          ],
+          "labelBBox": {
+            "x": 888,
+            "y": 305,
+            "width": 141,
+            "height": 18
+          },
+          "parent": "mmrag.web",
+          "relations": [
+            "1dvt09t"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "3j5nq3",
+          "source": "mmrag.web.agent_api",
+          "target": "mmrag.web.browser_ui",
+          "label": "SSE 事件和最终结果",
+          "points": [
+            [
+              997,
+              249
+            ],
+            [
+              998,
+              251
+            ],
+            [
+              998,
+              253
+            ],
+            [
+              998,
+              256
+            ],
+            [
+              1005,
+              305
+            ],
+            [
+              1005,
+              321
+            ],
+            [
+              999,
+              372
+            ]
+          ],
+          "labelBBox": {
+            "x": 928,
+            "y": 305,
+            "width": 118,
+            "height": 18
+          },
+          "parent": "mmrag.web",
+          "relations": [
+            "1ddhra7"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "p6dpdy",
+          "source": "mmrag.web.agent_api",
+          "target": "mmrag.graph",
+          "label": "调用 graph.stream",
+          "points": [
+            [
+              1188,
+              159
+            ],
+            [
+              1263,
+              159
+            ],
+            [
+              1344,
+              159
+            ],
+            [
+              1414,
+              159
+            ]
+          ],
+          "labelBBox": {
+            "x": 1250,
+            "y": 137,
+            "width": 114,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "cdcyd9"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "c3AgentComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "mmrag.graph",
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": {
+        "txt": "展示 build_picretrieve_graph 中的真实节点、外部 LLM 和图片召回模块。"
+      },
+      "title": "C3 组件图：LangGraph 图片召回 Agent",
+      "id": "c3AgentComponents",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "hjvsRIvjbEx5vRD8K4YuDQ1IeSkOU0Ay9LtZzLTPP_Q",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 3906,
+        "height": 1278
+      },
+      "nodes": [
+        {
+          "id": "mmrag.graph",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.graph.picretrieve_planner",
+            "mmrag.graph.picretrieve_reflection",
+            "mmrag.graph.modality_router",
+            "mmrag.graph.picretrieve",
+            "mmrag.graph.reranker",
+            "mmrag.graph.picretrieve_verifier",
+            "mmrag.graph.picretrieve_answer"
+          ],
+          "inEdges": [],
+          "outEdges": [
+            "1owq9u",
+            "187ug9k",
+            "1k5z6xg",
+            "1goip3j",
+            "1696ymb"
+          ],
+          "title": "LangGraph Agent 运行时",
+          "modelRef": "mmrag.graph",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+          },
+          "tags": [],
+          "technology": "LangGraph StateGraph",
+          "kind": "container",
+          "depth": 1,
+          "x": 8,
+          "y": 8,
+          "width": 3389,
+          "height": 571,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 147,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_planner",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1z08380",
+            "1owq9u"
+          ],
+          "title": "picretrieve_planner",
+          "modelRef": "mmrag.graph.picretrieve_planner",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "把纯文本、纯图片或图文混合输入转为结构化 QueryPlan。"
+          },
+          "tags": [],
+          "technology": "Gemma4 + strict JSON schema",
+          "kind": "component",
+          "x": 48,
+          "y": 270,
+          "width": 377,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 342,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_reflection",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "49yxp9"
+          ],
+          "outEdges": [
+            "14tbz82"
+          ],
+          "title": "picretrieve_reflection",
+          "modelRef": "mmrag.graph.picretrieve_reflection",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "在 retry budget 内把验证反馈转换为新的检索计划。"
+          },
+          "tags": [],
+          "technology": "LangGraph retry edge",
+          "kind": "component",
+          "x": 3016,
+          "y": 69,
+          "width": 341,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 305,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.modality_router",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1z08380"
+          ],
+          "outEdges": [
+            "rxdxnp"
+          ],
+          "title": "modality_router",
+          "modelRef": "mmrag.graph.modality_router",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "决定文本搜图、以图搜图或显式图文混合检索。"
+          },
+          "tags": [],
+          "technology": "QueryPlan -> RetrievalPlan",
+          "kind": "component",
+          "x": 618,
+          "y": 270,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 27,
+            "y": 55,
+            "width": 267,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "rxdxnp",
+            "14tbz82"
+          ],
+          "outEdges": [
+            "hef0qw",
+            "1696ymb"
+          ],
+          "title": "picretrieve",
+          "modelRef": "mmrag.graph.picretrieve",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "按 RetrievalTask 的 modality 调用已注册召回模块。"
+          },
+          "tags": [],
+          "technology": "Retriever registry dispatch",
+          "kind": "component",
+          "x": 1147,
+          "y": 270,
+          "width": 354,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 318,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.reranker",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "hef0qw"
+          ],
+          "outEdges": [
+            "5umisn"
+          ],
+          "title": "reranker",
+          "modelRef": "mmrag.graph.reranker",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "对 EvidenceCard 去重并按分数排序。"
+          },
+          "tags": [],
+          "technology": "score sort + deduplicate",
+          "kind": "component",
+          "x": 1728,
+          "y": 270,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 45,
+            "y": 55,
+            "width": 232,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.registry",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.registry.image_retriever"
+          ],
+          "inEdges": [
+            "1696ymb"
+          ],
+          "outEdges": [
+            "bxmyig"
+          ],
+          "title": "召回模块注册表",
+          "modelRef": "mmrag.registry",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。"
+          },
+          "tags": [],
+          "technology": "dict[Modality, Retriever]",
+          "kind": "container",
+          "depth": 1,
+          "navigateTo": "c3RegistryComponents",
+          "x": 1690,
+          "y": 587,
+          "width": 396,
+          "height": 265,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 68,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_verifier",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "5umisn"
+          ],
+          "outEdges": [
+            "49yxp9",
+            "1m135pi",
+            "187ug9k"
+          ],
+          "title": "picretrieve_verifier",
+          "modelRef": "mmrag.graph.picretrieve_verifier",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "判断候选图片是否充分，必要时产出改进 query。"
+          },
+          "tags": [],
+          "technology": "Gemma4",
+          "kind": "component",
+          "x": 2431,
+          "y": 270,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 19,
+            "y": 55,
+            "width": 283,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.registry.image_retriever",
+          "parent": "mmrag.registry",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1696ymb"
+          ],
+          "outEdges": [
+            "bxmyig"
+          ],
+          "title": "ImageRetriever 适配器",
+          "modelRef": "mmrag.registry.image_retriever",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "封装 PicRetrieve 的 search_by_text 与 search_by_image，并转换为 EvidenceCard。"
+          },
+          "tags": [],
+          "technology": "mrag.retrievers.ImageRetriever",
+          "kind": "component",
+          "x": 1722,
+          "y": 640,
+          "width": 331,
+          "height": 180,
+          "labelBBox": {
+            "x": 19,
+            "y": 46,
+            "width": 296,
+            "height": 85
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_answer",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1m135pi"
+          ],
+          "outEdges": [
+            "1k5z6xg",
+            "1goip3j"
+          ],
+          "title": "picretrieve_answer",
+          "modelRef": "mmrag.graph.picretrieve_answer",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "生成最终中文说明，解释本轮图片召回结果。"
+          },
+          "tags": [],
+          "technology": "Gemma4",
+          "kind": "component",
+          "x": 3027,
+          "y": 359,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 33,
+            "y": 55,
+            "width": 254,
+            "height": 67
+          }
+        },
+        {
+          "id": "picretrieve_pkg",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "bxmyig"
+          ],
+          "outEdges": [
+            "owxdiu"
+          ],
+          "title": "PicRetrieve 本地包",
+          "modelRef": "picretrieve_pkg",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+          },
+          "tags": [],
+          "technology": "CLIP image retrieval",
+          "kind": "external",
+          "x": 2397,
+          "y": 619,
+          "width": 387,
+          "height": 180,
+          "labelBBox": {
+            "x": 19,
+            "y": 46,
+            "width": 352,
+            "height": 85
+          }
+        },
+        {
+          "id": "lmstudio",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "1owq9u",
+            "187ug9k",
+            "1k5z6xg"
+          ],
+          "outEdges": [],
+          "title": "LM Studio / Gemma4",
+          "modelRef": "lmstudio",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "本地多模态大语言模型服务，负责规划、验证和回答。"
+          },
+          "tags": [],
+          "technology": "OpenAI-compatible API",
+          "kind": "external",
+          "x": 3560,
+          "y": 668,
+          "width": 340,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 304,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.web",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "1goip3j"
+          ],
+          "outEdges": [],
+          "title": "FastAPI 演示应用",
+          "modelRef": "mmrag.web",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提供浏览器界面、状态接口、图片接口和流式问答接口。"
+          },
+          "tags": [],
+          "technology": "FastAPI + HTML/CSS/JS + SSE",
+          "kind": "container",
+          "navigateTo": "c3WebComponents",
+          "x": 3554,
+          "y": 359,
+          "width": 352,
+          "height": 180,
+          "labelBBox": {
+            "x": 17,
+            "y": 55,
+            "width": 317,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.local_assets",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "owxdiu"
+          ],
+          "outEdges": [],
+          "title": "本地图片索引与语料",
+          "modelRef": "mmrag.local_assets",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。"
+          },
+          "tags": [],
+          "technology": "SQLite + NumPy + image files",
+          "kind": "store",
+          "x": 2405,
+          "y": 932,
+          "width": 372,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 37,
+            "width": 337,
+            "height": 103
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "1z08380",
+          "source": "mmrag.graph.picretrieve_planner",
+          "target": "mmrag.graph.modality_router",
+          "label": "QueryPlan",
+          "points": [
+            [
+              426,
+              360
+            ],
+            [
+              485,
+              360
+            ],
+            [
+              550,
+              360
+            ],
+            [
+              608,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 487,
+            "y": 338,
+            "width": 70,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "oadgfm"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "rxdxnp",
+          "source": "mmrag.graph.modality_router",
+          "target": "mmrag.graph.picretrieve",
+          "label": "RetrievalPlan",
+          "points": [
+            [
+              938,
+              360
+            ],
+            [
+              1000,
+              360
+            ],
+            [
+              1072,
+              360
+            ],
+            [
+              1137,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 999,
+            "y": 338,
+            "width": 87,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1aw3edg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "hef0qw",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.graph.reranker",
+          "label": "EvidenceCards",
+          "points": [
+            [
+              1501,
+              360
+            ],
+            [
+              1570,
+              360
+            ],
+            [
+              1650,
+              360
+            ],
+            [
+              1718,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 1563,
+            "y": 338,
+            "width": 99,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1c1ktfx"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "14tbz82",
+          "source": "mmrag.graph.picretrieve_reflection",
+          "target": "mmrag.graph.picretrieve",
+          "label": "重试 RetrievalPlan",
+          "points": [
+            [
+              3016,
+              147
+            ],
+            [
+              2737,
+              131
+            ],
+            [
+              2163,
+              115
+            ],
+            [
+              1690,
+              215
+            ],
+            [
+              1630,
+              228
+            ],
+            [
+              1567,
+              249
+            ],
+            [
+              1511,
+              272
+            ]
+          ],
+          "labelBBox": {
+            "x": 2169,
+            "y": 119,
+            "width": 114,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1075gcy"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "5umisn",
+          "source": "mmrag.graph.reranker",
+          "target": "mmrag.graph.picretrieve_verifier",
+          "label": "排序后的候选结果",
+          "points": [
+            [
+              2048,
+              360
+            ],
+            [
+              2159,
+              360
+            ],
+            [
+              2307,
+              360
+            ],
+            [
+              2421,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 2177,
+            "y": 338,
+            "width": 97,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1tlt7cz"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "49yxp9",
+          "source": "mmrag.graph.picretrieve_verifier",
+          "target": "mmrag.graph.picretrieve_reflection",
+          "label": "可选重试反馈",
+          "points": [
+            [
+              2751,
+              306
+            ],
+            [
+              2830,
+              280
+            ],
+            [
+              2925,
+              247
+            ],
+            [
+              3007,
+              220
+            ]
+          ],
+          "labelBBox": {
+            "x": 2864,
+            "y": 220,
+            "width": 74,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "npvtmf"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1m135pi",
+          "source": "mmrag.graph.picretrieve_verifier",
+          "target": "mmrag.graph.picretrieve_answer",
+          "label": "通过验证的候选结果",
+          "points": [
+            [
+              2751,
+              384
+            ],
+            [
+              2833,
+              396
+            ],
+            [
+              2933,
+              411
+            ],
+            [
+              3017,
+              424
+            ]
+          ],
+          "labelBBox": {
+            "x": 2846,
+            "y": 377,
+            "width": 109,
+            "height": 18
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "h8kk9z"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1owq9u",
+          "source": "mmrag.graph.picretrieve_planner",
+          "target": "lmstudio",
+          "label": "多模态理解并返回严格 JSON",
+          "points": [
+            [
+              248,
+              450
+            ],
+            [
+              279,
+              681
+            ],
+            [
+              395,
+              1278
+            ],
+            [
+              777,
+              1278
+            ],
+            [
+              777,
+              1278
+            ],
+            [
+              777,
+              1278
+            ],
+            [
+              3188,
+              1278
+            ],
+            [
+              3428,
+              1278
+            ],
+            [
+              3603,
+              1008
+            ],
+            [
+              3682,
+              857
+            ]
+          ],
+          "labelBBox": {
+            "x": 1807,
+            "y": 1256,
+            "width": 162,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "4g9s3l"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "187ug9k",
+          "source": "mmrag.graph.picretrieve_verifier",
+          "target": "lmstudio",
+          "label": "验证召回是否充分",
+          "points": [
+            [
+              2714,
+              450
+            ],
+            [
+              2796,
+              506
+            ],
+            [
+              2908,
+              575
+            ],
+            [
+              3016,
+              617
+            ],
+            [
+              3191,
+              685
+            ],
+            [
+              3403,
+              721
+            ],
+            [
+              3550,
+              740
+            ]
+          ],
+          "labelBBox": {
+            "x": 3138,
+            "y": 595,
+            "width": 97,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "11dgi43"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1k5z6xg",
+          "source": "mmrag.graph.picretrieve_answer",
+          "target": "lmstudio",
+          "label": "生成最终总结",
+          "points": [
+            [
+              3345,
+              539
+            ],
+            [
+              3413,
+              578
+            ],
+            [
+              3493,
+              624
+            ],
+            [
+              3562,
+              663
+            ]
+          ],
+          "labelBBox": {
+            "x": 3418,
+            "y": 563,
+            "width": 74,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "4ff906"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1goip3j",
+          "source": "mmrag.graph.picretrieve_answer",
+          "target": "mmrag.web",
+          "label": "最终状态",
+          "points": [
+            [
+              3347,
+              449
+            ],
+            [
+              3408,
+              449
+            ],
+            [
+              3479,
+              449
+            ],
+            [
+              3543,
+              449
+            ]
+          ],
+          "labelBBox": {
+            "x": 3430,
+            "y": 427,
+            "width": 51,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "57ivvg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1696ymb",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.registry.image_retriever",
+          "label": "分发图片召回任务",
+          "points": [
+            [
+              1456,
+              450
+            ],
+            [
+              1526,
+              497
+            ],
+            [
+              1612,
+              555
+            ],
+            [
+              1690,
+              606
+            ],
+            [
+              1705,
+              615
+            ],
+            [
+              1720,
+              625
+            ],
+            [
+              1735,
+              634
+            ]
+          ],
+          "labelBBox": {
+            "x": 1563,
+            "y": 504,
+            "width": 97,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "sthjvn"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "bxmyig",
+          "source": "mmrag.registry.image_retriever",
+          "target": "picretrieve_pkg",
+          "label": "search_by_text / search_by_image",
+          "points": [
+            [
+              2054,
+              725
+            ],
+            [
+              2154,
+              722
+            ],
+            [
+              2281,
+              718
+            ],
+            [
+              2387,
+              715
+            ]
+          ],
+          "labelBBox": {
+            "x": 2115,
+            "y": 695,
+            "width": 221,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "ck2af3"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "owxdiu",
+          "source": "picretrieve_pkg",
+          "target": "mmrag.local_assets",
+          "label": "读取向量、元数据和图片",
+          "points": [
+            [
+              2591,
+              799
+            ],
+            [
+              2591,
+              837
+            ],
+            [
+              2591,
+              882
+            ],
+            [
+              2591,
+              922
+            ]
+          ],
+          "labelBBox": {
+            "x": 2511,
+            "y": 855,
+            "width": 132,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "g79dcg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "c3RegistryComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "mmrag.registry",
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": {
+        "txt": "PicRetrieve 是第一个真实模块，后续模块复用 Retriever 协议接入。"
+      },
+      "title": "C3 组件图：召回模块扩展点",
+      "id": "c3RegistryComponents",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "JU6QOSpfzkajXMwssMEbFaG6bU9l2b_FEz3MekvTXA8",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1830,
+        "height": 587
+      },
+      "nodes": [
+        {
+          "id": "mmrag.graph",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.graph.picretrieve"
+          ],
+          "inEdges": [],
+          "outEdges": [
+            "1696ymb",
+            "eoxkno"
+          ],
+          "title": "LangGraph Agent 运行时",
+          "modelRef": "mmrag.graph",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+          },
+          "tags": [],
+          "technology": "LangGraph StateGraph",
+          "kind": "container",
+          "depth": 1,
+          "navigateTo": "c3AgentComponents",
+          "x": 8,
+          "y": 142,
+          "width": 418,
+          "height": 265,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 147,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve",
+          "parent": "mmrag.graph",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1696ymb",
+            "eoxkno"
+          ],
+          "title": "picretrieve",
+          "modelRef": "mmrag.graph.picretrieve",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "按 RetrievalTask 的 modality 调用已注册召回模块。"
+          },
+          "tags": [],
+          "technology": "Retriever registry dispatch",
+          "kind": "component",
+          "x": 40,
+          "y": 195,
+          "width": 354,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 318,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.registry",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.registry.image_retriever",
+            "mmrag.registry.future_modules"
+          ],
+          "inEdges": [
+            "1696ymb",
+            "eoxkno"
+          ],
+          "outEdges": [
+            "bxmyig"
+          ],
+          "title": "召回模块注册表",
+          "modelRef": "mmrag.registry",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。"
+          },
+          "tags": [],
+          "technology": "dict[Modality, Retriever]",
+          "kind": "container",
+          "depth": 1,
+          "x": 622,
+          "y": 8,
+          "width": 517,
+          "height": 571,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 68,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.registry.image_retriever",
+          "parent": "mmrag.registry",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1696ymb"
+          ],
+          "outEdges": [
+            "bxmyig"
+          ],
+          "title": "ImageRetriever 适配器",
+          "modelRef": "mmrag.registry.image_retriever",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "封装 PicRetrieve 的 search_by_text 与 search_by_image，并转换为 EvidenceCard。"
+          },
+          "tags": [],
+          "technology": "mrag.retrievers.ImageRetriever",
+          "kind": "component",
+          "x": 714,
+          "y": 69,
+          "width": 331,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 296,
+            "height": 85
+          }
+        },
+        {
+          "id": "mmrag.registry.future_modules",
+          "parent": "mmrag.registry",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "eoxkno"
+          ],
+          "outEdges": [],
+          "title": "后续召回模块",
+          "modelRef": "mmrag.registry.future_modules",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "为文本、页面、文档、音频、视频、表格、SQL 或知识图谱模块预留。"
+          },
+          "tags": [],
+          "technology": "Retriever protocol",
+          "kind": "component",
+          "x": 662,
+          "y": 359,
+          "width": 436,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 401,
+            "height": 67
+          }
+        },
+        {
+          "id": "picretrieve_pkg",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "bxmyig"
+          ],
+          "outEdges": [
+            "owxdiu"
+          ],
+          "title": "PicRetrieve 本地包",
+          "modelRef": "picretrieve_pkg",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+          },
+          "tags": [],
+          "technology": "CLIP image retrieval",
+          "kind": "external",
+          "x": 1442,
+          "y": 69,
+          "width": 387,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 352,
+            "height": 85
+          }
+        },
+        {
+          "id": "mmrag.local_assets",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "owxdiu"
+          ],
+          "outEdges": [],
+          "title": "本地图片索引与语料",
+          "modelRef": "mmrag.local_assets",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。"
+          },
+          "tags": [],
+          "technology": "SQLite + NumPy + image files",
+          "kind": "store",
+          "x": 1450,
+          "y": 382,
+          "width": 372,
+          "height": 180,
+          "labelBBox": {
+            "x": 17,
+            "y": 37,
+            "width": 337,
+            "height": 103
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "bxmyig",
+          "source": "mmrag.registry.image_retriever",
+          "target": "picretrieve_pkg",
+          "label": "search_by_text / search_by_image",
+          "points": [
+            [
+              1046,
+              159
+            ],
+            [
+              1160,
+              159
+            ],
+            [
+              1311,
+              159
+            ],
+            [
+              1432,
+              159
+            ]
+          ],
+          "labelBBox": {
+            "x": 1160,
+            "y": 137,
+            "width": 221,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "ck2af3"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1696ymb",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.registry.image_retriever",
+          "label": "分发图片召回任务",
+          "points": [
+            [
+              394,
+              251
+            ],
+            [
+              490,
+              233
+            ],
+            [
+              609,
+              211
+            ],
+            [
+              705,
+              192
+            ]
+          ],
+          "labelBBox": {
+            "x": 479,
+            "y": 193,
+            "width": 97,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "sthjvn"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "eoxkno",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.registry.future_modules",
+          "label": "未来按 modality 扩展分发",
+          "points": [
+            [
+              394,
+              329
+            ],
+            [
+              473,
+              348
+            ],
+            [
+              568,
+              372
+            ],
+            [
+              652,
+              393
+            ]
+          ],
+          "labelBBox": {
+            "x": 455,
+            "y": 326,
+            "width": 146,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "h35xe9"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "owxdiu",
+          "source": "picretrieve_pkg",
+          "target": "mmrag.local_assets",
+          "label": "读取向量、元数据和图片",
+          "points": [
+            [
+              1636,
+              249
+            ],
+            [
+              1636,
+              287
+            ],
+            [
+              1636,
+              332
+            ],
+            [
+              1636,
+              372
+            ]
+          ],
+          "labelBBox": {
+            "x": 1555,
+            "y": 305,
+            "width": 132,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "g79dcg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "c4QueryFlow": {
+      "_type": "dynamic",
+      "tags": null,
+      "links": null,
+      "_stage": "layouted",
+      "sourcePath": "mmrag.c4",
+      "description": null,
+      "title": "C4 动态图：一次 PicRetrieve 查询",
+      "id": "c4QueryFlow",
+      "variant": "diagram",
+      "autoLayout": {
+        "direction": "LR"
+      },
+      "hash": "by3ehm1jrXcLh4EvAmq_k4a5x2mwiEHj_C49pbaYIlE",
+      "sequenceLayout": {
+        "actors": [
+          {
+            "id": "picretrieve_pkg",
+            "x": 0,
+            "y": 84,
+            "width": 387,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-08_target",
+                "cx": 194,
+                "cy": 741,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              },
+              {
+                "id": "step-09_source",
+                "cx": 194,
+                "cy": 835,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "lmstudio",
+            "x": 447,
+            "y": 84,
+            "width": 340,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-04_target",
+                "cx": 170,
+                "cy": 509,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              },
+              {
+                "id": "step-12_target",
+                "cx": 170,
+                "cy": 1046,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              },
+              {
+                "id": "step-14_target",
+                "cx": 170,
+                "cy": 1234,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.local_assets",
+            "x": 851,
+            "y": 84,
+            "width": 372,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-09_target",
+                "cx": 186,
+                "cy": 835,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              }
+            ]
+          },
+          {
+            "id": "user",
+            "x": 1287,
+            "y": 84,
+            "width": 486,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-01_source",
+                "cx": 243,
+                "cy": 370,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.web.browser_ui",
+            "x": 1869,
+            "y": 84,
+            "width": 427,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-01_target",
+                "cx": 214,
+                "cy": 370,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-02_source",
+                "cx": 214,
+                "cy": 392,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              },
+              {
+                "id": "step-16_target",
+                "cx": 214,
+                "cy": 1350,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.web.agent_api",
+            "x": 2356,
+            "y": 84,
+            "width": 432,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-02_target",
+                "cx": 216,
+                "cy": 392,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-03_source",
+                "cx": 216,
+                "cy": 414,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              },
+              {
+                "id": "step-15_target",
+                "cx": 216,
+                "cy": 1328,
+                "height": 24,
+                "type": "target",
+                "position": "right"
+              },
+              {
+                "id": "step-16_source",
+                "cx": 216,
+                "cy": 1350,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.picretrieve_planner",
+            "x": 2884,
+            "y": 84,
+            "width": 377,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-03_target",
+                "cx": 189,
+                "cy": 414,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-04_source",
+                "cx": 189,
+                "cy": 509,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              },
+              {
+                "id": "step-05_source",
+                "cx": 189,
+                "cy": 603,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.modality_router",
+            "x": 3321,
+            "y": 84,
+            "width": 320,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-05_target",
+                "cx": 160,
+                "cy": 603,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-06_source",
+                "cx": 160,
+                "cy": 625,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.picretrieve",
+            "x": 3701,
+            "y": 84,
+            "width": 354,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-06_target",
+                "cx": 177,
+                "cy": 625,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-07_source",
+                "cx": 177,
+                "cy": 647,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              },
+              {
+                "id": "step-10_source",
+                "cx": 177,
+                "cy": 930,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.registry.image_retriever",
+            "x": 4151,
+            "y": 84,
+            "width": 331,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-07_target",
+                "cx": 166,
+                "cy": 647,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-08_source",
+                "cx": 166,
+                "cy": 741,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.reranker",
+            "x": 4578,
+            "y": 84,
+            "width": 320,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-10_target",
+                "cx": 160,
+                "cy": 930,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-11_source",
+                "cx": 160,
+                "cy": 952,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.picretrieve_verifier",
+            "x": 4958,
+            "y": 84,
+            "width": 320,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-11_target",
+                "cx": 160,
+                "cy": 952,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-12_source",
+                "cx": 160,
+                "cy": 1046,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              },
+              {
+                "id": "step-13_source",
+                "cx": 160,
+                "cy": 1140,
+                "height": 40,
+                "type": "source",
+                "position": "right"
+              }
+            ]
+          },
+          {
+            "id": "mmrag.graph.picretrieve_answer",
+            "x": 5338,
+            "y": 84,
+            "width": 320,
+            "height": 180,
+            "ports": [
+              {
+                "id": "step-13_target",
+                "cx": 160,
+                "cy": 1140,
+                "height": 24,
+                "type": "target",
+                "position": "left"
+              },
+              {
+                "id": "step-14_source",
+                "cx": 160,
+                "cy": 1234,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              },
+              {
+                "id": "step-15_source",
+                "cx": 160,
+                "cy": 1328,
+                "height": 40,
+                "type": "source",
+                "position": "left"
+              }
+            ]
+          }
+        ],
+        "compounds": [
+          {
+            "depth": 0,
+            "x": 819,
+            "y": 0,
+            "width": 436,
+            "height": 1014,
+            "id": "mmrag-1",
+            "origin": "mmrag"
+          },
+          {
+            "depth": 1,
+            "x": 1805,
+            "y": 0,
+            "width": 3917,
+            "height": 1560,
+            "id": "mmrag-2",
+            "origin": "mmrag"
+          },
+          {
+            "depth": 0,
+            "x": 1837,
+            "y": 32,
+            "width": 983,
+            "height": 1496,
+            "id": "mmrag.web",
+            "origin": "mmrag.web"
+          },
+          {
+            "depth": 0,
+            "x": 2852,
+            "y": 32,
+            "width": 1235,
+            "height": 1098,
+            "id": "mmrag.graph-1",
+            "origin": "mmrag.graph"
+          },
+          {
+            "depth": 0,
+            "x": 4546,
+            "y": 32,
+            "width": 1144,
+            "height": 1496,
+            "id": "mmrag.graph-2",
+            "origin": "mmrag.graph"
+          },
+          {
+            "depth": 0,
+            "x": 4119,
+            "y": 32,
+            "width": 395,
+            "height": 887,
+            "id": "mmrag.registry",
+            "origin": "mmrag.registry"
+          }
+        ],
+        "steps": [
+          {
+            "id": "step-01",
+            "sourceHandle": "step-01_source",
+            "targetHandle": "step-01_target",
+            "labelBBox": {
+              "width": 186,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-02",
+            "sourceHandle": "step-02_source",
+            "targetHandle": "step-02_target",
+            "labelBBox": {
+              "width": 179,
+              "height": 29
+            }
+          },
+          {
+            "id": "step-03",
+            "sourceHandle": "step-03_source",
+            "targetHandle": "step-03_target",
+            "labelBBox": {
+              "width": 141,
+              "height": 29
+            }
+          },
+          {
+            "id": "step-04",
+            "sourceHandle": "step-04_source",
+            "targetHandle": "step-04_target",
+            "labelBBox": {
+              "width": 212,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-05",
+            "sourceHandle": "step-05_source",
+            "targetHandle": "step-05_target",
+            "labelBBox": {
+              "width": 108,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-06",
+            "sourceHandle": "step-06_source",
+            "targetHandle": "step-06_target",
+            "labelBBox": {
+              "width": 125,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-07",
+            "sourceHandle": "step-07_source",
+            "targetHandle": "step-07_target",
+            "labelBBox": {
+              "width": 112,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-08",
+            "sourceHandle": "step-08_source",
+            "targetHandle": "step-08_target",
+            "labelBBox": {
+              "width": 259,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-09",
+            "sourceHandle": "step-09_source",
+            "targetHandle": "step-09_target",
+            "labelBBox": {
+              "width": 135,
+              "height": 29
+            }
+          },
+          {
+            "id": "step-10",
+            "sourceHandle": "step-10_source",
+            "targetHandle": "step-10_target",
+            "labelBBox": {
+              "width": 145,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-11",
+            "sourceHandle": "step-11_source",
+            "targetHandle": "step-11_target",
+            "labelBBox": {
+              "width": 142,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-12",
+            "sourceHandle": "step-12_source",
+            "targetHandle": "step-12_target",
+            "labelBBox": {
+              "width": 142,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-13",
+            "sourceHandle": "step-13_source",
+            "targetHandle": "step-13_target",
+            "labelBBox": {
+              "width": 155,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-14",
+            "sourceHandle": "step-14_source",
+            "targetHandle": "step-14_target",
+            "labelBBox": {
+              "width": 119,
+              "height": 28
+            }
+          },
+          {
+            "id": "step-15",
+            "sourceHandle": "step-15_source",
+            "targetHandle": "step-15_target",
+            "labelBBox": {
+              "width": 131,
+              "height": 29
+            }
+          },
+          {
+            "id": "step-16",
+            "sourceHandle": "step-16_source",
+            "targetHandle": "step-16_target",
+            "labelBBox": {
+              "width": 129,
+              "height": 28
+            }
+          }
+        ],
+        "parallelAreas": [],
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 5722,
+          "height": 1560
+        }
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 5692,
+        "height": 1214
+      },
+      "nodes": [
+        {
+          "id": "picretrieve_pkg",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "step-08"
+          ],
+          "outEdges": [
+            "step-09"
+          ],
+          "title": "PicRetrieve 本地包",
+          "modelRef": "picretrieve_pkg",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。"
+          },
+          "tags": [],
+          "technology": "CLIP image retrieval",
+          "kind": "external",
+          "x": 49,
+          "y": 85,
+          "width": 387,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 352,
+            "height": 85
+          }
+        },
+        {
+          "id": "lmstudio",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "step-04",
+            "step-12",
+            "step-14"
+          ],
+          "outEdges": [],
+          "title": "LM Studio / Gemma4",
+          "modelRef": "lmstudio",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "本地多模态大语言模型服务，负责规划、验证和回答。"
+          },
+          "tags": [],
+          "technology": "OpenAI-compatible API",
+          "kind": "external",
+          "x": 1587,
+          "y": 946,
+          "width": 340,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 304,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "mmrag.local_assets",
+            "mmrag.web",
+            "mmrag.graph",
+            "mmrag.registry"
+          ],
+          "inEdges": [
+            "step-01",
+            "step-09"
+          ],
+          "outEdges": [
+            "step-04",
+            "step-08",
+            "step-12",
+            "step-14"
+          ],
+          "title": "MMRAG 图片召回 Agent",
+          "modelRef": "mmrag",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve-first 的多模态 Agent 原型；用 LangGraph 编排，用本地 LLM 做规划、验证和回答。"
+          },
+          "tags": [],
+          "kind": "system",
+          "depth": 2,
+          "navigateTo": "c2Containers",
+          "x": 737,
+          "y": 160,
+          "width": 4947,
+          "height": 746,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 128,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.local_assets",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "step-09"
+          ],
+          "outEdges": [],
+          "title": "本地图片索引与语料",
+          "modelRef": "mmrag.local_assets",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。"
+          },
+          "tags": [],
+          "technology": "SQLite + NumPy + image files",
+          "kind": "store",
+          "x": 845,
+          "y": 221,
+          "width": 372,
+          "height": 180,
+          "labelBBox": {
+            "x": 17,
+            "y": 37,
+            "width": 337,
+            "height": 103
+          }
+        },
+        {
+          "id": "user",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "step-01"
+          ],
+          "title": "研究 / 演示用户",
+          "modelRef": "user",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 564,
+          "width": 486,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 65,
+            "width": 450,
+            "height": 47
+          }
+        },
+        {
+          "id": "mmrag.web",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [
+            "mmrag.web.browser_ui",
+            "mmrag.web.agent_api"
+          ],
+          "inEdges": [
+            "step-01",
+            "step-15"
+          ],
+          "outEdges": [
+            "step-03"
+          ],
+          "title": "FastAPI 演示应用",
+          "modelRef": "mmrag.web",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "提供浏览器界面、状态接口、图片接口和流式问答接口。"
+          },
+          "tags": [],
+          "technology": "FastAPI + HTML/CSS/JS + SSE",
+          "kind": "container",
+          "depth": 1,
+          "navigateTo": "c3WebComponents",
+          "x": 777,
+          "y": 451,
+          "width": 1236,
+          "height": 404,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 91,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.web.browser_ui",
+          "parent": "mmrag.web",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-01",
+            "step-16"
+          ],
+          "outEdges": [
+            "step-02"
+          ],
+          "title": "浏览器界面",
+          "modelRef": "mmrag.web.browser_ui",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "模拟主流大模型输入框，展示节点状态、耗时、证据卡片和最终回答。"
+          },
+          "tags": [],
+          "technology": "Single-page HTML",
+          "kind": "component",
+          "x": 817,
+          "y": 564,
+          "width": 427,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 392,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.web.agent_api",
+          "parent": "mmrag.web",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-02",
+            "step-15"
+          ],
+          "outEdges": [
+            "step-03",
+            "step-16"
+          ],
+          "title": "Agent API / SSE",
+          "modelRef": "mmrag.web.agent_api",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "创建运行状态，调用 LangGraph，并把节点级进度转成 SSE 事件。"
+          },
+          "tags": [],
+          "technology": "FastAPI",
+          "kind": "component",
+          "x": 1541,
+          "y": 521,
+          "width": 432,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 397,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [
+            "mmrag.graph.picretrieve_planner",
+            "mmrag.graph.modality_router",
+            "mmrag.graph.picretrieve",
+            "mmrag.graph.reranker",
+            "mmrag.graph.picretrieve_verifier",
+            "mmrag.graph.picretrieve_answer"
+          ],
+          "inEdges": [
+            "step-03"
+          ],
+          "outEdges": [
+            "step-04",
+            "step-07",
+            "step-12",
+            "step-14",
+            "step-15"
+          ],
+          "title": "LangGraph Agent 运行时",
+          "modelRef": "mmrag.graph",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "实现当前 PicRetrieve Agent 的真实执行图。"
+          },
+          "tags": [],
+          "technology": "LangGraph StateGraph",
+          "kind": "container",
+          "depth": 1,
+          "navigateTo": "c3AgentComponents",
+          "x": 2262,
+          "y": 585,
+          "width": 3382,
+          "height": 281,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 147,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_planner",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-03"
+          ],
+          "outEdges": [
+            "step-04",
+            "step-05"
+          ],
+          "title": "picretrieve_planner",
+          "modelRef": "mmrag.graph.picretrieve_planner",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "把纯文本、纯图片或图文混合输入转为结构化 QueryPlan。"
+          },
+          "tags": [],
+          "technology": "Gemma4 + strict JSON schema",
+          "kind": "component",
+          "x": 2302,
+          "y": 646,
+          "width": 377,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 342,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.modality_router",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-05"
+          ],
+          "outEdges": [
+            "step-06"
+          ],
+          "title": "modality_router",
+          "modelRef": "mmrag.graph.modality_router",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "决定文本搜图、以图搜图或显式图文混合检索。"
+          },
+          "tags": [],
+          "technology": "QueryPlan -> RetrievalPlan",
+          "kind": "component",
+          "x": 2905,
+          "y": 646,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 27,
+            "y": 55,
+            "width": 267,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-06"
+          ],
+          "outEdges": [
+            "step-07",
+            "step-10"
+          ],
+          "title": "picretrieve",
+          "modelRef": "mmrag.graph.picretrieve",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "按 RetrievalTask 的 modality 调用已注册召回模块。"
+          },
+          "tags": [],
+          "technology": "Retriever registry dispatch",
+          "kind": "component",
+          "x": 3485,
+          "y": 646,
+          "width": 354,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 318,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.registry",
+          "parent": "mmrag",
+          "level": 1,
+          "children": [
+            "mmrag.registry.image_retriever"
+          ],
+          "inEdges": [
+            "step-07"
+          ],
+          "outEdges": [
+            "step-08"
+          ],
+          "title": "召回模块注册表",
+          "modelRef": "mmrag.registry",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。"
+          },
+          "tags": [],
+          "technology": "dict[Modality, Retriever]",
+          "kind": "container",
+          "depth": 1,
+          "navigateTo": "c3RegistryComponents",
+          "x": 4069,
+          "y": 280,
+          "width": 396,
+          "height": 265,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 68,
+            "height": 15
+          }
+        },
+        {
+          "id": "mmrag.registry.image_retriever",
+          "parent": "mmrag.registry",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-07"
+          ],
+          "outEdges": [
+            "step-08"
+          ],
+          "title": "ImageRetriever 适配器",
+          "modelRef": "mmrag.registry.image_retriever",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "封装 PicRetrieve 的 search_by_text 与 search_by_image，并转换为 EvidenceCard。"
+          },
+          "tags": [],
+          "technology": "mrag.retrievers.ImageRetriever",
+          "kind": "component",
+          "x": 4101,
+          "y": 333,
+          "width": 331,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 46,
+            "width": 296,
+            "height": 85
+          }
+        },
+        {
+          "id": "mmrag.graph.reranker",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-10"
+          ],
+          "outEdges": [
+            "step-11"
+          ],
+          "title": "reranker",
+          "modelRef": "mmrag.graph.reranker",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "对 EvidenceCard 去重并按分数排序。"
+          },
+          "tags": [],
+          "technology": "score sort + deduplicate",
+          "kind": "component",
+          "x": 4107,
+          "y": 646,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 44,
+            "y": 55,
+            "width": 232,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_verifier",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-11"
+          ],
+          "outEdges": [
+            "step-12",
+            "step-13"
+          ],
+          "title": "picretrieve_verifier",
+          "modelRef": "mmrag.graph.picretrieve_verifier",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "判断候选图片是否充分，必要时产出改进 query。"
+          },
+          "tags": [],
+          "technology": "Gemma4",
+          "kind": "component",
+          "x": 4693,
+          "y": 646,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 55,
+            "width": 283,
+            "height": 67
+          }
+        },
+        {
+          "id": "mmrag.graph.picretrieve_answer",
+          "parent": "mmrag.graph",
+          "level": 2,
+          "children": [],
+          "inEdges": [
+            "step-13"
+          ],
+          "outEdges": [
+            "step-14",
+            "step-15"
+          ],
+          "title": "picretrieve_answer",
+          "modelRef": "mmrag.graph.picretrieve_answer",
+          "shape": "rectangle",
+          "color": "primary",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "生成最终中文说明，解释本轮图片召回结果。"
+          },
+          "tags": [],
+          "technology": "Gemma4",
+          "kind": "component",
+          "x": 5284,
+          "y": 646,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 33,
+            "y": 55,
+            "width": 254,
+            "height": 67
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "step-01",
+          "source": "user",
+          "target": "mmrag.web.browser_ui",
+          "label": "输入文本和/或上传查询图片",
+          "points": [
+            [
+              486,
+              654
+            ],
+            [
+              588,
+              654
+            ],
+            [
+              707,
+              654
+            ],
+            [
+              807,
+              654
+            ]
+          ],
+          "labelBBox": {
+            "x": 555,
+            "y": 622,
+            "width": 170,
+            "height": 20
+          },
+          "parent": null,
+          "relations": [
+            "1est485"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@0"
+        },
+        {
+          "id": "step-02",
+          "source": "mmrag.web.browser_ui",
+          "target": "mmrag.web.agent_api",
+          "label": "POST /api/ask/stream",
+          "points": [
+            [
+              1244,
+              720
+            ],
+            [
+              1319,
+              735
+            ],
+            [
+              1404,
+              742
+            ],
+            [
+              1481,
+              727
+            ],
+            [
+              1507,
+              721
+            ],
+            [
+              1534,
+              713
+            ],
+            [
+              1560,
+              704
+            ]
+          ],
+          "labelBBox": {
+            "x": 1314,
+            "y": 694,
+            "width": 163,
+            "height": 21
+          },
+          "parent": "mmrag.web",
+          "relations": [
+            "1dvt09t"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@1"
+        },
+        {
+          "id": "step-03",
+          "source": "mmrag.web.agent_api",
+          "target": "mmrag.graph.picretrieve_planner",
+          "label": "启动 StateGraph",
+          "points": [
+            [
+              1973,
+              648
+            ],
+            [
+              2074,
+              665
+            ],
+            [
+              2193,
+              685
+            ],
+            [
+              2292,
+              702
+            ]
+          ],
+          "labelBBox": {
+            "x": 2078,
+            "y": 626,
+            "width": 125,
+            "height": 21
+          },
+          "parent": "mmrag",
+          "relations": [],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@2"
+        },
+        {
+          "id": "step-04",
+          "source": "mmrag.graph.picretrieve_planner",
+          "target": "lmstudio",
+          "label": "理解图文输入并返回严格 JSON",
+          "points": [
+            [
+              1936,
+              951
+            ],
+            [
+              1968,
+              937
+            ],
+            [
+              2002,
+              922
+            ],
+            [
+              2033,
+              909
+            ],
+            [
+              2121,
+              872
+            ],
+            [
+              2219,
+              834
+            ],
+            [
+              2302,
+              804
+            ]
+          ],
+          "labelBBox": {
+            "x": 2042,
+            "y": 798,
+            "width": 196,
+            "height": 20
+          },
+          "dir": "back",
+          "parent": null,
+          "relations": [
+            "4g9s3l"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@3"
+        },
+        {
+          "id": "step-05",
+          "source": "mmrag.graph.picretrieve_planner",
+          "target": "mmrag.graph.modality_router",
+          "label": "QueryPlan",
+          "points": [
+            [
+              2679,
+              736
+            ],
+            [
+              2749,
+              736
+            ],
+            [
+              2827,
+              736
+            ],
+            [
+              2895,
+              736
+            ]
+          ],
+          "labelBBox": {
+            "x": 2749,
+            "y": 704,
+            "width": 92,
+            "height": 20
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "oadgfm"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@4"
+        },
+        {
+          "id": "step-06",
+          "source": "mmrag.graph.modality_router",
+          "target": "mmrag.graph.picretrieve",
+          "label": "RetrievalPlan",
+          "points": [
+            [
+              3225,
+              736
+            ],
+            [
+              3301,
+              736
+            ],
+            [
+              3394,
+              736
+            ],
+            [
+              3475,
+              736
+            ]
+          ],
+          "labelBBox": {
+            "x": 3303,
+            "y": 704,
+            "width": 109,
+            "height": 20
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1aw3edg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@5"
+        },
+        {
+          "id": "step-07",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.registry.image_retriever",
+          "label": "图片召回任务",
+          "points": [
+            [
+              3836,
+              646
+            ],
+            [
+              3916,
+              604
+            ],
+            [
+              4011,
+              555
+            ],
+            [
+              4092,
+              513
+            ]
+          ],
+          "labelBBox": {
+            "x": 3924,
+            "y": 510,
+            "width": 96,
+            "height": 20
+          },
+          "parent": "mmrag",
+          "relations": [
+            "sthjvn"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@6"
+        },
+        {
+          "id": "step-08",
+          "source": "mmrag.registry.image_retriever",
+          "target": "picretrieve_pkg",
+          "label": "search_by_text / search_by_image",
+          "points": [
+            [
+              446,
+              120
+            ],
+            [
+              604,
+              82
+            ],
+            [
+              829,
+              39
+            ],
+            [
+              1030,
+              39
+            ],
+            [
+              1030,
+              39
+            ],
+            [
+              1030,
+              39
+            ],
+            [
+              3663,
+              39
+            ],
+            [
+              3881,
+              39
+            ],
+            [
+              4084,
+              220
+            ],
+            [
+              4189,
+              333
+            ]
+          ],
+          "labelBBox": {
+            "x": 2372,
+            "y": 7,
+            "width": 243,
+            "height": 20
+          },
+          "dir": "back",
+          "parent": null,
+          "relations": [
+            "ck2af3"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@7"
+        },
+        {
+          "id": "step-09",
+          "source": "picretrieve_pkg",
+          "target": "mmrag.local_assets",
+          "label": "读取向量和元数据",
+          "points": [
+            [
+              437,
+              208
+            ],
+            [
+              558,
+              229
+            ],
+            [
+              713,
+              256
+            ],
+            [
+              834,
+              277
+            ]
+          ],
+          "labelBBox": {
+            "x": 580,
+            "y": 198,
+            "width": 119,
+            "height": 21
+          },
+          "parent": null,
+          "relations": [
+            "g79dcg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@8"
+        },
+        {
+          "id": "step-10",
+          "source": "mmrag.graph.picretrieve",
+          "target": "mmrag.graph.reranker",
+          "label": "EvidenceCards",
+          "points": [
+            [
+              3839,
+              736
+            ],
+            [
+              3920,
+              736
+            ],
+            [
+              4016,
+              736
+            ],
+            [
+              4096,
+              736
+            ]
+          ],
+          "labelBBox": {
+            "x": 3908,
+            "y": 704,
+            "width": 129,
+            "height": 20
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1c1ktfx"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@9"
+        },
+        {
+          "id": "step-11",
+          "source": "mmrag.graph.reranker",
+          "target": "mmrag.graph.picretrieve_verifier",
+          "label": "排序后的证据卡片",
+          "points": [
+            [
+              4426,
+              736
+            ],
+            [
+              4506,
+              736
+            ],
+            [
+              4602,
+              736
+            ],
+            [
+              4682,
+              736
+            ]
+          ],
+          "labelBBox": {
+            "x": 4502,
+            "y": 704,
+            "width": 126,
+            "height": 20
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "1tlt7cz"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@10"
+        },
+        {
+          "id": "step-12",
+          "source": "mmrag.graph.picretrieve_verifier",
+          "target": "lmstudio",
+          "label": "验证召回是否充分",
+          "points": [
+            [
+              1937,
+              1019
+            ],
+            [
+              2085,
+              1007
+            ],
+            [
+              2301,
+              992
+            ],
+            [
+              2490,
+              992
+            ],
+            [
+              2490,
+              992
+            ],
+            [
+              2490,
+              992
+            ],
+            [
+              4268,
+              992
+            ],
+            [
+              4438,
+              992
+            ],
+            [
+              4614,
+              899
+            ],
+            [
+              4728,
+              826
+            ]
+          ],
+          "labelBBox": {
+            "x": 3294,
+            "y": 960,
+            "width": 126,
+            "height": 20
+          },
+          "dir": "back",
+          "parent": null,
+          "relations": [
+            "11dgi43"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@11"
+        },
+        {
+          "id": "step-13",
+          "source": "mmrag.graph.picretrieve_verifier",
+          "target": "mmrag.graph.picretrieve_answer",
+          "label": "通过验证的证据卡片",
+          "points": [
+            [
+              5012,
+              736
+            ],
+            [
+              5093,
+              736
+            ],
+            [
+              5192,
+              736
+            ],
+            [
+              5274,
+              736
+            ]
+          ],
+          "labelBBox": {
+            "x": 5081,
+            "y": 704,
+            "width": 139,
+            "height": 20
+          },
+          "parent": "mmrag.graph",
+          "relations": [
+            "h8kk9z"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@12"
+        },
+        {
+          "id": "step-14",
+          "source": "mmrag.graph.picretrieve_answer",
+          "target": "lmstudio",
+          "label": "最终中文总结",
+          "points": [
+            [
+              1937,
+              1104
+            ],
+            [
+              2083,
+              1155
+            ],
+            [
+              2297,
+              1214
+            ],
+            [
+              2490,
+              1214
+            ],
+            [
+              2490,
+              1214
+            ],
+            [
+              2490,
+              1214
+            ],
+            [
+              4853,
+              1214
+            ],
+            [
+              5097,
+              1214
+            ],
+            [
+              5297,
+              964
+            ],
+            [
+              5388,
+              826
+            ]
+          ],
+          "labelBBox": {
+            "x": 3613,
+            "y": 1182,
+            "width": 103,
+            "height": 20
+          },
+          "dir": "back",
+          "parent": null,
+          "relations": [
+            "4ff906"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@13"
+        },
+        {
+          "id": "step-15",
+          "source": "mmrag.graph.picretrieve_answer",
+          "target": "mmrag.web.agent_api",
+          "label": "回答和图片卡片",
+          "points": [
+            [
+              1874,
+              515
+            ],
+            [
+              2012,
+              411
+            ],
+            [
+              2253,
+              260
+            ],
+            [
+              2490,
+              260
+            ],
+            [
+              2490,
+              260
+            ],
+            [
+              2490,
+              260
+            ],
+            [
+              3356,
+              260
+            ],
+            [
+              3849,
+              260
+            ],
+            [
+              3985,
+              141
+            ],
+            [
+              4465,
+              253
+            ],
+            [
+              4789,
+              329
+            ],
+            [
+              5130,
+              528
+            ],
+            [
+              5311,
+              646
+            ]
+          ],
+          "labelBBox": {
+            "x": 3607,
+            "y": 191,
+            "width": 115,
+            "height": 21
+          },
+          "dir": "back",
+          "parent": "mmrag",
+          "relations": [
+            "57ivvg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@14"
+        },
+        {
+          "id": "step-16",
+          "source": "mmrag.web.agent_api",
+          "target": "mmrag.web.browser_ui",
+          "label": "SSE 最终事件",
+          "points": [
+            [
+              1255,
+              641
+            ],
+            [
+              1346,
+              635
+            ],
+            [
+              1451,
+              629
+            ],
+            [
+              1541,
+              624
+            ]
+          ],
+          "labelBBox": {
+            "x": 1339,
+            "y": 595,
+            "width": 113,
+            "height": 20
+          },
+          "dir": "back",
+          "parent": "mmrag.web",
+          "relations": [
+            "1ddhra7"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal",
+          "tags": [],
+          "astPath": "/steps@15"
+        }
+      ]
+    }
+  },
+  "deployments": {
+    "elements": {},
+    "relations": {}
+  },
+  "imports": {},
+  "manualLayouts": {}
+}

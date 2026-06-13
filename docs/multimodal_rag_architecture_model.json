@@ -1,0 +1,304 @@
+{
+  "system_name": "Multimodal Retrieval QA System",
+  "purpose": "Answer user questions with direct generation or retrieval-augmented, multi-modal, evidence-grounded responses.",
+  "stakeholders": [
+    "domain expert",
+    "business user",
+    "data curator",
+    "developer",
+    "operator",
+    "security reviewer",
+    "evaluator"
+  ],
+  "quality_goals": [
+    "traceable citations",
+    "adaptive retrieval",
+    "multi-modal evidence coverage",
+    "bounded latency and cost",
+    "permission-aware retrieval",
+    "observable failures"
+  ],
+  "actors": [
+    {
+      "id": "domain_user",
+      "name": "Domain Expert / End User",
+      "type": "person",
+      "description": "Asks text, image, document, audio, video, database, or knowledge-graph questions and verifies citations."
+    },
+    {
+      "id": "data_curator",
+      "name": "Admin / Data Curator",
+      "type": "person",
+      "description": "Manages data ingestion, quality, permissions, metadata, evaluation sets, and feedback remediation."
+    }
+  ],
+  "external_systems": [
+    {
+      "id": "enterprise_sources",
+      "name": "Enterprise Data Sources",
+      "type": "external_system",
+      "trust": "enterprise",
+      "description": "PDF, scanned documents, images, tables, audio, video, SQL databases, logs, and knowledge graphs."
+    },
+    {
+      "id": "model_provider",
+      "name": "External / Local Model Provider",
+      "type": "external_system",
+      "trust": "external_or_private",
+      "description": "LLM, VLM, embedding, reranker, ASR, OCR, and verifier model endpoints."
+    },
+    {
+      "id": "web_search",
+      "name": "Web Search / External APIs",
+      "type": "external_system",
+      "trust": "external",
+      "description": "Optional real-time knowledge retrieval."
+    },
+    {
+      "id": "monitoring_platform",
+      "name": "Monitoring / Evaluation Platform",
+      "type": "external_system",
+      "trust": "internal_platform",
+      "description": "Phoenix traces, Ragas metrics, audit logs, and dashboards."
+    }
+  ],
+  "containers": [
+    {
+      "id": "client",
+      "name": "Web UI / SDK / API Client",
+      "layer": "client_api",
+      "type": "application",
+      "responsibility": "Collect questions, uploads, sessions, citation inspection, and user feedback.",
+      "technology": "Web UI / SDK / HTTPS",
+      "interfaces": ["HTTPS"]
+    },
+    {
+      "id": "api_gateway",
+      "name": "API Gateway",
+      "layer": "client_api",
+      "type": "service",
+      "responsibility": "Authentication, rate limiting, session routing, file upload, and streaming response.",
+      "technology": "HTTP service",
+      "interfaces": ["HTTPS/JSON", "SSE/WebSocket"]
+    },
+    {
+      "id": "rag_orchestrator",
+      "name": "RAG Orchestrator",
+      "layer": "orchestration",
+      "type": "service",
+      "responsibility": "Plan, decide whether retrieval is needed, route modalities, control retry loops, and enforce budgets.",
+      "technology": "Python / LangGraph",
+      "interfaces": ["REST/gRPC", "internal events"]
+    },
+    {
+      "id": "retrieval_service",
+      "name": "Retrieval Service",
+      "layer": "retrieval_tools",
+      "type": "service",
+      "responsibility": "Run text, page/image, document, audio/video, SQL, KG, and web retrieval with permission filters.",
+      "technology": "LlamaIndex / custom retrievers",
+      "interfaces": ["gRPC/HTTP", "Vector Search", "BM25", "SQL", "Graph Query"]
+    },
+    {
+      "id": "tool_registry",
+      "name": "Tool Registry",
+      "layer": "retrieval_tools",
+      "type": "service",
+      "responsibility": "Register and invoke OCR, ASR, VLM caption, layout parser, table parser, chart parser, SQL, KG, and web search tools.",
+      "technology": "Python tools / model gateway",
+      "interfaces": ["internal tool calls"]
+    },
+    {
+      "id": "evidence_service",
+      "name": "Evidence Fusion & Verification Service",
+      "layer": "evidence_verification",
+      "type": "service",
+      "responsibility": "Merge candidates, rerank, deduplicate, pack evidence, map citations, detect conflicts, and verify support.",
+      "technology": "BGE-reranker / verifier model / rules",
+      "interfaces": ["gRPC/HTTP"]
+    },
+    {
+      "id": "generation_service",
+      "name": "Generation & Response Service",
+      "layer": "generation",
+      "type": "service",
+      "responsibility": "Generate grounded answers, verify answer sentences, render citations, and return uncertainty or clarification.",
+      "technology": "Qwen3 / DeepSeek / Qwen2.5-VL / external LLM",
+      "interfaces": ["gRPC/HTTP", "model API"]
+    },
+    {
+      "id": "ingestion_workers",
+      "name": "Ingestion & Indexing Workers",
+      "layer": "offline_ingestion",
+      "type": "worker",
+      "responsibility": "Connect, parse, normalize, chunk, enrich metadata, embed, and build modality-specific indexes.",
+      "technology": "Docling / PaddleOCR / ASR / embedding workers",
+      "interfaces": ["batch jobs", "queue events"]
+    }
+  ],
+  "data_stores": [
+    {
+      "id": "object_store",
+      "name": "Raw Object Store",
+      "type": "object_store",
+      "technology": "S3-compatible / filesystem",
+      "description": "Raw files, page images, image regions, audio/video segments, and parsed artifacts."
+    },
+    {
+      "id": "metadata_db",
+      "name": "Metadata DB",
+      "type": "database",
+      "technology": "PostgreSQL",
+      "description": "Source, version, ACL, timestamps, schema descriptions, entity links, and citation anchors."
+    },
+    {
+      "id": "bm25_index",
+      "name": "BM25 / Keyword Index",
+      "type": "search_index",
+      "technology": "Elasticsearch / OpenSearch",
+      "description": "Text, OCR, ASR, table facts, and keyword retrieval."
+    },
+    {
+      "id": "vector_db",
+      "name": "Vector DB",
+      "type": "vector_store",
+      "technology": "Qdrant / Milvus / Weaviate / pgvector",
+      "description": "Dense, sparse, image, page, region, audio/video segment, and multi-vector embeddings."
+    },
+    {
+      "id": "sql_db",
+      "name": "SQL / Warehouse",
+      "type": "database",
+      "technology": "PostgreSQL / data warehouse",
+      "description": "Structured business tables, reports, logs, metrics, and SQL execution results."
+    },
+    {
+      "id": "knowledge_graph",
+      "name": "Knowledge Graph",
+      "type": "graph_store",
+      "technology": "Graph DB / triple store",
+      "description": "Entities, relations, paths, subgraphs, rules, and linked evidence."
+    },
+    {
+      "id": "cache",
+      "name": "Cache / Memory Store",
+      "type": "cache",
+      "technology": "Redis / local cache",
+      "description": "Session memory, tool-result cache, evidence cache, and embedding cache."
+    }
+  ],
+  "connectors": [
+    {
+      "from": "client",
+      "to": "api_gateway",
+      "label": "HTTPS, UserQuery / Upload / Feedback",
+      "protocol": "HTTPS",
+      "sync_async": "sync",
+      "data": "UserQuery"
+    },
+    {
+      "from": "api_gateway",
+      "to": "rag_orchestrator",
+      "label": "POST /answer, UserQuery",
+      "protocol": "HTTPS/JSON",
+      "sync_async": "sync",
+      "data": "UserQuery"
+    },
+    {
+      "from": "rag_orchestrator",
+      "to": "retrieval_service",
+      "label": "retrieve(subqueries), RetrievalPlan",
+      "protocol": "gRPC/HTTP",
+      "sync_async": "sync",
+      "data": "Subqueries"
+    },
+    {
+      "from": "retrieval_service",
+      "to": "evidence_service",
+      "label": "Candidates, scores, citation anchors",
+      "protocol": "gRPC/HTTP",
+      "sync_async": "sync",
+      "data": "Candidates"
+    },
+    {
+      "from": "evidence_service",
+      "to": "generation_service",
+      "label": "EvidencePack, support scores",
+      "protocol": "gRPC/HTTP",
+      "sync_async": "sync",
+      "data": "EvidencePack"
+    },
+    {
+      "from": "generation_service",
+      "to": "api_gateway",
+      "label": "GroundedAnswer + Citations",
+      "protocol": "SSE/HTTPS",
+      "sync_async": "sync",
+      "data": "GroundedAnswer"
+    },
+    {
+      "from": "enterprise_sources",
+      "to": "ingestion_workers",
+      "label": "Batch / Event ingestion, RawData",
+      "protocol": "connector / queue",
+      "sync_async": "async",
+      "data": "RawData"
+    },
+    {
+      "from": "ingestion_workers",
+      "to": "object_store",
+      "label": "write raw and parsed artifacts",
+      "protocol": "object storage API",
+      "sync_async": "sync",
+      "data": "Artifacts"
+    },
+    {
+      "from": "ingestion_workers",
+      "to": "vector_db",
+      "label": "upsert embeddings",
+      "protocol": "Vector DB API",
+      "sync_async": "sync",
+      "data": "Embeddings"
+    },
+    {
+      "from": "retrieval_service",
+      "to": "vector_db",
+      "label": "Vector Search, topK candidates",
+      "protocol": "Vector Search",
+      "sync_async": "sync",
+      "data": "Candidates"
+    }
+  ],
+  "deployment_nodes": [
+    {
+      "id": "public_zone",
+      "name": "Public Zone",
+      "zone": "public",
+      "runs": ["load_balancer", "api_gateway"]
+    },
+    {
+      "id": "private_app_zone",
+      "name": "Private App Zone / Kubernetes",
+      "zone": "private",
+      "runs": ["rag_orchestrator", "retrieval_service", "tool_registry", "evidence_service", "generation_service", "ingestion_workers"]
+    },
+    {
+      "id": "data_zone",
+      "name": "Private Data Zone",
+      "zone": "private_data",
+      "runs": ["object_store", "metadata_db", "bm25_index", "vector_db", "sql_db", "knowledge_graph", "cache"]
+    },
+    {
+      "id": "external_model_zone",
+      "name": "Model Provider Zone",
+      "zone": "external_or_gpu_private",
+      "runs": ["model_provider"]
+    }
+  ],
+  "cross_cutting": {
+    "security": ["AuthN/AuthZ", "RBAC", "tenant filters", "PII redaction", "secret manager", "audit trail"],
+    "observability": ["Phoenix traces", "logs", "metrics", "latency", "tool call counts", "failure reasons"],
+    "governance": ["citation verification", "feedback loop", "data quality remediation", "index rebuild", "permission repair"],
+    "evaluation": ["Ragas", "Recall@K", "MRR", "nDCG", "Evidence Recall", "citation accuracy", "hallucination rate", "multi-hop success"]
+  }
+}

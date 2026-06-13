@@ -1,0 +1,20 @@
+{
+  "name": "mmrag-architecture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "app:dev": "uv run uvicorn mrag.web:app --host 127.0.0.1 --port 8010",
+    "check": "uv run ruff check mrag tests scripts && uv run python -m pytest tests/test_picretrieve_graph.py PicRetrieve/tests/test_retrieval.py",
+    "arch:dev": "cd architecture/likec4 && likec4 serve --listen 127.0.0.1 --port 5173",
+    "arch:validate": "cd architecture/likec4 && likec4 validate",
+    "arch:format": "cd architecture/likec4 && likec4 format",
+    "arch:build": "cd architecture/likec4 && likec4 build -o ../../docs/likec4/site --base ./ --use-hash-history",
+    "arch:export:json": "cd architecture/likec4 && likec4 export json --project mmrag --pretty -o ../../docs/likec4/model.json",
+    "arch:export:png": "cd architecture/likec4 && rm -rf ../../docs/likec4/png && likec4 export png --project mmrag --flat -o ../../docs/likec4/png",
+    "arch:export:drawio": "cd architecture/likec4 && likec4 export drawio -o ../../docs/likec4/drawio",
+    "graph:export": "uv run python scripts/export_langgraph_diagram.py"
+  },
+  "devDependencies": {
+    "likec4": "^1.58.0"
+  }
+}

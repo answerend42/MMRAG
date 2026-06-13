@@ -1,0 +1,191 @@
+specification {
+  element actor
+  element system
+  element container
+  element component
+  element store
+  element external
+}
+
+model {
+  user = actor '研究 / 演示用户' {
+    description '提交文本、查询图片或图文混合输入，并在前端观察 LangGraph 流水线进度。'
+  }
+
+  lmstudio = external 'LM Studio / Gemma4' {
+    technology 'OpenAI-compatible API'
+    description '本地多模态大语言模型服务，负责规划、验证和回答。'
+  }
+
+  picretrieve_pkg = external 'PicRetrieve 本地包' {
+    technology 'CLIP image retrieval'
+    description '位于 PicRetrieve/app 下的本地包，提供 text-to-image 与 image-to-image 检索。'
+  }
+
+  mmrag = system 'MMRAG 图片召回 Agent' {
+    description 'PicRetrieve-first 的多模态 Agent 原型；用 LangGraph 编排，用本地 LLM 做规划、验证和回答。'
+
+    web = container 'FastAPI 演示应用' {
+      technology 'FastAPI + HTML/CSS/JS + SSE'
+      description '提供浏览器界面、状态接口、图片接口和流式问答接口。'
+
+      browser_ui = component '浏览器界面' {
+        technology 'Single-page HTML'
+        description '模拟主流大模型输入框，展示节点状态、耗时、证据卡片和最终回答。'
+      }
+
+      agent_api = component 'Agent API / SSE' {
+        technology 'FastAPI'
+        description '创建运行状态，调用 LangGraph，并把节点级进度转成 SSE 事件。'
+      }
+    }
+
+    graph = container 'LangGraph Agent 运行时' {
+      technology 'LangGraph StateGraph'
+      description '实现当前 PicRetrieve Agent 的真实执行图。'
+
+      picretrieve_planner = component 'picretrieve_planner' {
+        technology 'Gemma4 + strict JSON schema'
+        description '把纯文本、纯图片或图文混合输入转为结构化 QueryPlan。'
+      }
+
+      modality_router = component 'modality_router' {
+        technology 'QueryPlan -> RetrievalPlan'
+        description '决定文本搜图、以图搜图或显式图文混合检索。'
+      }
+
+      picretrieve = component 'picretrieve' {
+        technology 'Retriever registry dispatch'
+        description '按 RetrievalTask 的 modality 调用已注册召回模块。'
+      }
+
+      reranker = component 'reranker' {
+        technology 'score sort + deduplicate'
+        description '对 EvidenceCard 去重并按分数排序。'
+      }
+
+      picretrieve_verifier = component 'picretrieve_verifier' {
+        technology 'Gemma4'
+        description '判断候选图片是否充分，必要时产出改进 query。'
+      }
+
+      picretrieve_reflection = component 'picretrieve_reflection' {
+        technology 'LangGraph retry edge'
+        description '在 retry budget 内把验证反馈转换为新的检索计划。'
+      }
+
+      picretrieve_answer = component 'picretrieve_answer' {
+        technology 'Gemma4'
+        description '生成最终中文说明，解释本轮图片召回结果。'
+      }
+    }
+
+    registry = container '召回模块注册表' {
+      technology 'dict[Modality, Retriever]'
+      description '系统扩展点；当前只注册 ImageRetriever，后续模块以同一协议接入。'
+
+      image_retriever = component 'ImageRetriever 适配器' {
+        technology 'mrag.retrievers.ImageRetriever'
+        description '封装 PicRetrieve 的 search_by_text 与 search_by_image，并转换为 EvidenceCard。'
+      }
+
+      future_modules = component '后续召回模块' {
+        technology 'Retriever protocol'
+        description '为文本、页面、文档、音频、视频、表格、SQL 或知识图谱模块预留。'
+      }
+    }
+
+    local_assets = store '本地图片索引与语料' {
+      technology 'SQLite + NumPy + image files'
+      description 'PicRetrieve 的 index.sqlite、embeddings.npy、ids.npy、metadata 和图片文件。'
+    }
+  }
+
+  user -> mmrag '提交图文检索请求'
+  mmrag -> lmstudio '规划、验证、生成回答'
+  mmrag -> picretrieve_pkg '调用图片召回能力'
+
+  user -> mmrag.web.browser_ui '输入文本和/或上传查询图片'
+  mmrag.web.browser_ui -> mmrag.web.agent_api 'POST /api/ask/stream'
+  mmrag.web.agent_api -> mmrag.graph '调用 graph.stream'
+
+  mmrag.graph.picretrieve_planner -> lmstudio '多模态理解并返回严格 JSON'
+  mmrag.graph.picretrieve_planner -> mmrag.graph.modality_router 'QueryPlan'
+  mmrag.graph.modality_router -> mmrag.graph.picretrieve 'RetrievalPlan'
+  mmrag.graph.picretrieve -> mmrag.registry.image_retriever '分发图片召回任务'
+  mmrag.registry.image_retriever -> picretrieve_pkg 'search_by_text / search_by_image'
+  picretrieve_pkg -> mmrag.local_assets '读取向量、元数据和图片'
+  mmrag.graph.picretrieve -> mmrag.graph.reranker 'EvidenceCards'
+  mmrag.graph.reranker -> mmrag.graph.picretrieve_verifier '排序后的候选结果'
+  mmrag.graph.picretrieve_verifier -> lmstudio '验证召回是否充分'
+  mmrag.graph.picretrieve_verifier -> mmrag.graph.picretrieve_reflection '可选重试反馈'
+  mmrag.graph.picretrieve_reflection -> mmrag.graph.picretrieve '重试 RetrievalPlan'
+  mmrag.graph.picretrieve_verifier -> mmrag.graph.picretrieve_answer '通过验证的候选结果'
+  mmrag.graph.picretrieve_answer -> lmstudio '生成最终总结'
+  mmrag.graph.picretrieve_answer -> mmrag.web.agent_api '最终状态'
+  mmrag.web.agent_api -> mmrag.web.browser_ui 'SSE 事件和最终结果'
+  mmrag.graph.picretrieve -> mmrag.registry.future_modules '未来按 modality 扩展分发'
+}
+
+views {
+  view index {
+    title 'C1 系统上下文：MMRAG 图片召回 Agent'
+    description '展示用户、MMRAG 系统以及本地 LLM / PicRetrieve 外部依赖。'
+    include user, mmrag, lmstudio, picretrieve_pkg
+    autoLayout LeftRight
+  }
+
+  view c2Containers of mmrag {
+    title 'C2 容器图：MMRAG 运行时'
+    description '展示 FastAPI、LangGraph、模块注册表和本地图片资产之间的关系。'
+    include *
+    include user, lmstudio, picretrieve_pkg
+    autoLayout LeftRight
+  }
+
+  view c3WebComponents of mmrag.web {
+    title 'C3 组件图：FastAPI 演示应用'
+    description '展示浏览器界面和 Agent API / SSE 如何连接 LangGraph。'
+    include *
+    include user, mmrag.graph
+    autoLayout LeftRight
+  }
+
+  view c3AgentComponents of mmrag.graph {
+    title 'C3 组件图：LangGraph 图片召回 Agent'
+    description '展示 build_picretrieve_graph 中的真实节点、外部 LLM 和图片召回模块。'
+    include *
+    include lmstudio, mmrag.registry.image_retriever, picretrieve_pkg, mmrag.local_assets
+    autoLayout LeftRight
+  }
+
+  view c3RegistryComponents of mmrag.registry {
+    title 'C3 组件图：召回模块扩展点'
+    description 'PicRetrieve 是第一个真实模块，后续模块复用 Retriever 协议接入。'
+    include *
+    include mmrag.graph.picretrieve, picretrieve_pkg, mmrag.local_assets
+    autoLayout LeftRight
+  }
+
+  dynamic view c4QueryFlow {
+    title 'C4 动态图：一次 PicRetrieve 查询'
+    user -> mmrag.web.browser_ui '输入文本和/或上传查询图片'
+    mmrag.web.browser_ui -> mmrag.web.agent_api 'POST /api/ask/stream'
+    mmrag.web.agent_api -> mmrag.graph.picretrieve_planner '启动 StateGraph'
+    mmrag.graph.picretrieve_planner -> lmstudio '理解图文输入并返回严格 JSON'
+    mmrag.graph.picretrieve_planner -> mmrag.graph.modality_router 'QueryPlan'
+    mmrag.graph.modality_router -> mmrag.graph.picretrieve 'RetrievalPlan'
+    mmrag.graph.picretrieve -> mmrag.registry.image_retriever '图片召回任务'
+    mmrag.registry.image_retriever -> picretrieve_pkg 'search_by_text / search_by_image'
+    picretrieve_pkg -> mmrag.local_assets '读取向量和元数据'
+    mmrag.graph.picretrieve -> mmrag.graph.reranker 'EvidenceCards'
+    mmrag.graph.reranker -> mmrag.graph.picretrieve_verifier '排序后的证据卡片'
+    mmrag.graph.picretrieve_verifier -> lmstudio '验证召回是否充分'
+    mmrag.graph.picretrieve_verifier -> mmrag.graph.picretrieve_answer '通过验证的证据卡片'
+    mmrag.graph.picretrieve_answer -> lmstudio '最终中文总结'
+    mmrag.graph.picretrieve_answer -> mmrag.web.agent_api '回答和图片卡片'
+    mmrag.web.agent_api -> mmrag.web.browser_ui 'SSE 最终事件'
+
+    include mmrag, mmrag.web, mmrag.graph, mmrag.registry, picretrieve_pkg, lmstudio, mmrag.local_assets
+  }
+}

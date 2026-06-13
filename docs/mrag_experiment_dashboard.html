@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>多模态 RAG 实验方案看板</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: oklch(22% 0.025 255);
+      --muted: oklch(47% 0.025 255);
+      --line: oklch(84% 0.022 255);
+      --paper: oklch(98% 0.007 255);
+      --panel: oklch(95.5% 0.012 255);
+      --blue: oklch(56% 0.16 253);
+      --violet: oklch(58% 0.16 302);
+      --cyan: oklch(62% 0.13 205);
+      --green: oklch(57% 0.13 150);
+      --orange: oklch(70% 0.16 62);
+      --red: oklch(58% 0.17 25);
+      --shadow: 0 18px 50px oklch(35% 0.04 255 / 0.12);
+      --radius: 8px;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 24px;
+      --space-2xl: 32px;
+      --space-3xl: 48px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, oklch(97% 0.012 255) 0%, var(--paper) 45%),
+        var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, "Avenir Next", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    button, input, select { font: inherit; }
+
+    .shell {
+      width: min(1480px, calc(100vw - 48px));
+      margin: 0 auto;
+      padding: var(--space-2xl) 0 var(--space-3xl);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-2xl);
+      align-items: end;
+      margin-bottom: var(--space-2xl);
+    }
+
+    .eyebrow {
+      margin: 0 0 var(--space-sm);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 74ch;
+      margin: var(--space-md) 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .source-links {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: oklch(99% 0.006 255);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: var(--space-xl);
+      margin-bottom: var(--space-xl);
+    }
+
+    .summary-panel,
+    .flow-panel,
+    .matrix-panel,
+    .detail-panel,
+    .record-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: oklch(99% 0.006 255);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-panel {
+      padding: var(--space-xl);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .metric {
+      min-height: 90px;
+      border: 1px solid oklch(88% 0.018 255);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      background: var(--panel);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: var(--space-sm);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .flow-panel {
+      padding: var(--space-xl);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .panel-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(135px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .step {
+      min-height: 96px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      background: var(--panel);
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -16px;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: var(--paper);
+      font-weight: 800;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: var(--space-sm);
+      font-size: 13px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: var(--space-xl);
+      align-items: start;
+    }
+
+    .matrix-panel {
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 160px 160px;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--line);
+      background: oklch(98% 0.007 255);
+    }
+
+    .field {
+      min-height: 38px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0 var(--space-md);
+      background: oklch(99.5% 0.004 255);
+      color: var(--ink);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: oklch(96.5% 0.01 255);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    td {
+      background: oklch(99% 0.005 255);
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover td,
+    tbody tr.is-active td {
+      background: oklch(96% 0.027 235);
+    }
+
+    .id {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-weight: 800;
+      background: var(--paper);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 var(--space-sm);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid;
+    }
+
+    .status.todo { color: oklch(42% 0.04 255); border-color: oklch(80% 0.03 255); background: oklch(95% 0.01 255); }
+    .status.planned { color: oklch(42% 0.13 253); border-color: oklch(78% 0.09 253); background: oklch(94% 0.035 253); }
+    .status.running { color: oklch(42% 0.13 62); border-color: oklch(78% 0.12 62); background: oklch(95% 0.04 62); }
+    .status.done { color: oklch(38% 0.11 150); border-color: oklch(76% 0.1 150); background: oklch(94% 0.035 150); }
+    .status.blocked { color: oklch(38% 0.13 25); border-color: oklch(76% 0.11 25); background: oklch(94% 0.035 25); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      max-width: 100%;
+      padding: 0 var(--space-sm);
+      border: 1px solid oklch(84% 0.02 255);
+      border-radius: 999px;
+      background: oklch(98% 0.008 255);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .detail-panel {
+      position: sticky;
+      top: var(--space-xl);
+      padding: var(--space-xl);
+    }
+
+    .detail-head {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-lg);
+      align-items: start;
+      margin-bottom: var(--space-xl);
+    }
+
+    .detail-head h2 {
+      margin: var(--space-sm) 0 0;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+
+    .detail-section {
+      display: grid;
+      gap: var(--space-sm);
+      padding: var(--space-lg) 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-section h3 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .detail-section p {
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .record-panel {
+      margin-top: var(--space-xl);
+      padding: var(--space-xl);
+    }
+
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .schema-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      background: var(--panel);
+    }
+
+    .schema-item b {
+      display: block;
+      margin-bottom: var(--space-xs);
+    }
+
+    .schema-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty {
+      padding: var(--space-2xl);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .overview,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .detail-panel {
+        position: static;
+      }
+      .summary-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100vw - 24px, 1480px);
+        padding-top: var(--space-xl);
+      }
+      header {
+        grid-template-columns: 1fr;
+      }
+      .source-links {
+        justify-content: flex-start;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      .summary-panel,
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+      .panel-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: var(--space-sm);
+      }
+      .step:not(:last-child)::after {
+        display: none;
+      }
+      .matrix-panel {
+        overflow-x: auto;
+      }
+      table {
+        min-width: 980px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">MMRAG Experiment Registry</p>
+        <h1>多模态 RAG 实验方案看板</h1>
+        <p class="lead">把“架构图画不清楚”的部分转成可维护看板：每类数据只展示处理难点、候选方案、baseline、指标、证据定位和下一步。</p>
+      </div>
+      <nav class="source-links" aria-label="相关文件">
+        <a class="link-button" href="./mrag_experiment_registry.json">Registry JSON</a>
+        <a class="link-button" href="./多模态RAG实验选型与进度跟踪.md">实验记录 Markdown</a>
+        <a class="link-button" href="./multimodal_rag_retrieval_branch_experiments.drawio">架构图 draw.io</a>
+      </nav>
+    </header>
+
+    <section class="overview" aria-label="总览">
+      <div class="summary-panel" id="summary"></div>
+      <div class="flow-panel">
+        <div class="panel-title">
+          <h2>统一处理路径</h2>
+          <p>图里只保留职责，方案在看板里维护</p>
+        </div>
+        <div class="pipeline">
+          <div class="step"><b>Raw Data</b><span>文本、图像、文档、音频、视频、表格、数据库、知识图谱</span></div>
+          <div class="step"><b>Specific Processing</b><span>OCR、ASR、caption、layout、schema、SQL/KG</span></div>
+          <div class="step"><b>Knowledge Asset</b><span>TextChunk、PageRegion、TimeSegment、StructuredEvidence</span></div>
+          <div class="step"><b>Index / Executor</b><span>lexical、vector、visual、temporal、SQL、graph</span></div>
+          <div class="step"><b>EvidenceCard</b><span>统一 locator、content_ref、score 和 raw_reference</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="实验矩阵">
+      <div class="matrix-panel">
+        <div class="toolbar">
+          <input id="search" class="field" type="search" placeholder="搜索数据类型、处理点、候选方案或指标">
+          <select id="statusFilter" class="field" aria-label="按状态过滤"></select>
+          <select id="groupFilter" class="field" aria-label="按类型过滤"></select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 84px;">编号</th>
+              <th style="width: 120px;">数据类型</th>
+              <th>特定处理点</th>
+              <th>候选方案</th>
+              <th style="width: 190px;">Baseline</th>
+              <th style="width: 122px;">状态</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
+      </div>
+
+      <aside class="detail-panel" id="detail" aria-label="实验详情"></aside>
+    </section>
+
+    <section class="record-panel" aria-label="EvidenceCard 字段">
+      <div class="panel-title">
+        <h2>EvidenceCard 最小字段</h2>
+        <p>所有分支统一输出，方便融合、重排、校验和引用</p>
+      </div>
+      <div class="schema-grid" id="schemaGrid"></div>
+    </section>
+  </main>
+
+  <script type="application/json" id="registry-data">
+  {
+    "updated": "2026-05-30",
+    "evidence_card_fields": ["modality", "source_id", "locator", "content_ref", "score", "raw_reference", "confidence", "notes"],
+    "records": [
+      {"id":"T-01","modality":"文本","group":"Text","status":"Planned","processing":["cleaning","chunking","metadata"],"hard_parts":["chunk 粒度","元数据过滤","混合检索"],"candidates":["BM25","Dense","Hybrid","Reranker"],"baseline":"BM25 only","metrics":["Recall@K","MRR","nDCG","Evidence Recall"],"evidence":["chunk id","section locator","source metadata"],"next":"固定小规模标注集，比较 chunk size 和 reranker 开关。","risk":"缺少稳定标注问题集时，召回指标会不可靠。"},
+      {"id":"I-01","modality":"图像/页面","group":"Image/Page","status":"TODO","processing":["OCR","caption","region","bbox"],"hard_parts":["OCR 质量","caption 可用性","区域定位"],"candidates":["PaddleOCR","Mistral OCR","Qwen2.5-VL","InternVL3","ColPali","ColQwen2"],"baseline":"OCR RAG","metrics":["Page Hit","Region Accuracy","Citation Precision"],"evidence":["page id","bbox","visual reference","OCR block"],"next":"准备扫描页和截图样例，标注页码与关键区域。","risk":"OCR 与视觉召回的定位粒度不同，需要统一到 EvidenceCard locator。"},
+      {"id":"D-01","modality":"文档","group":"Document","status":"TODO","processing":["layout parsing","table/chart extraction","element location"],"hard_parts":["版面解析","跨页证据","表格/图表抽取"],"candidates":["Docling","PaddleOCR","MinerU","Unstructured","Mistral OCR"],"baseline":"OCR-only document RAG","metrics":["Evidence Page Hit","Multi-page Coverage","Citation Precision"],"evidence":["doc id","page number","element id","layout reference"],"next":"把财报、业务报表和普通 PDF 分开评估。","risk":"跨页答案需要引用多个 page 或 element，不能只保留一个 chunk。"},
+      {"id":"A-01","modality":"音频","group":"Audio","status":"TODO","processing":["ASR","speaker diarization","timestamp alignment"],"hard_parts":["ASR","说话人","时间戳对齐"],"candidates":["Whisper","FunASR","PaddleSpeech","speaker diarization"],"baseline":"ASR transcript retrieval","metrics":["Timestamp Hit","Speaker Accuracy","WER Impact"],"evidence":["audio id","start time","end time","speaker id"],"next":"用会议录音样例建立转写、说话人和时间戳证据。","risk":"WER 会直接影响文本召回，需要单独记录 ASR 置信度。"},
+      {"id":"V-01","modality":"视频","group":"Video","status":"TODO","processing":["frame extraction","scene split","ASR subtitle","keyframe caption"],"hard_parts":["抽帧","场景切分","字幕对齐","关键帧证据"],"candidates":["FFmpeg","OpenCV","ASR subtitles","keyframe caption"],"baseline":"ASR-only video retrieval","metrics":["Segment Hit","Event Localization","Latency","Cost"],"evidence":["video id","shot id","keyframe","time range"],"next":"比较固定间隔抽帧和 shot-based 抽帧。","risk":"视频成本高，先做小样本再扩大数据量。"},
+      {"id":"TB-01","modality":"表格","group":"Table","status":"TODO","processing":["table structure","cell locator","metric mapping"],"hard_parts":["表头识别","单元格定位","指标口径"],"candidates":["表格结构抽取","单元格引用","指标口径映射"],"baseline":"CSV/table text retrieval","metrics":["Cell Hit","Answer Correctness","Traceability"],"evidence":["table id","row id","cell id","calculation trace"],"next":"财报表格和业务报表需要单独标注。","risk":"同一指标可能有多个口径，必须保留计算链路。"},
+      {"id":"DB-01","modality":"数据库","group":"Database","status":"TODO","processing":["schema mapping","Text-to-SQL","permission check","SQL validation"],"hard_parts":["schema 理解","Text-to-SQL","权限","结果追溯"],"candidates":["PostgreSQL","DuckDB","Warehouse","schema vector index","SQL validation"],"baseline":"schema-only Text-to-SQL","metrics":["Execution Accuracy","Result Correctness","Access Safety"],"evidence":["SQL query","result rows","row provenance","permission check"],"next":"准备只读测试库和问题集合。","risk":"生产库权限和敏感字段必须在实验前隔离。"},
+      {"id":"KG-01","modality":"知识图谱","group":"Knowledge Graph","status":"TODO","processing":["entity linking","path retrieval","subgraph extraction"],"hard_parts":["实体链接","关系路径","子图证据"],"candidates":["entity linking","path retrieval","subgraph extraction","triple store"],"baseline":"entity keyword retrieval","metrics":["Path Hit","Relation Accuracy","Traceability"],"evidence":["entity id","relation id","triple","path"],"next":"定义实体、关系和路径深度上限。","risk":"路径越深越容易引入无关证据，需要 verifier 约束。"},
+      {"id":"F-01","modality":"融合与重排","group":"Fusion","status":"Planned","processing":["candidate normalization","dedupe","fusion","rerank"],"hard_parts":["多分支候选统一","跨模态排序","冲突证据处理"],"candidates":["RRF","Score Fusion","cross-modal rerank"],"baseline":"branch-local topK concat","metrics":["Evidence Recall","Answer Faithfulness","Latency"],"evidence":["EvidenceCard list","ranked score","source group","conflict signal"],"next":"等至少两个分支 baseline 可用后再启动。","risk":"分支得分不可直接比较，需要分数归一化。"}
+    ]
+  }
+  </script>
+  <script>
+    const registry = JSON.parse(document.getElementById('registry-data').textContent);
+    const records = registry.records;
+    let activeId = records[0].id;
+
+    const statusClass = (status) => status.toLowerCase();
+    const chipList = (items) => `<div class="chips">${items.map(item => `<span class="chip">${item}</span>`).join('')}</div>`;
+    const statusPill = (status) => `<span class="status ${statusClass(status)}">${status}</span>`;
+
+    function renderSummary() {
+      const total = records.length;
+      const planned = records.filter(r => r.status === 'Planned').length;
+      const todo = records.filter(r => r.status === 'TODO').length;
+      const readyBranches = records.filter(r => r.status === 'Done' || r.status === 'Running').length;
+      document.getElementById('summary').innerHTML = [
+        ['实验项', total],
+        ['Planned', planned],
+        ['TODO', todo],
+        ['可用分支', readyBranches]
+      ].map(([label, value]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join('');
+    }
+
+    function fillFilters() {
+      const statusFilter = document.getElementById('statusFilter');
+      const groupFilter = document.getElementById('groupFilter');
+      const statuses = ['All Status', ...new Set(records.map(r => r.status))];
+      const groups = ['All Types', ...new Set(records.map(r => r.group))];
+      statusFilter.innerHTML = statuses.map(s => `<option value="${s}">${s}</option>`).join('');
+      groupFilter.innerHTML = groups.map(g => `<option value="${g}">${g}</option>`).join('');
+    }
+
+    function currentRows() {
+      const query = document.getElementById('search').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const group = document.getElementById('groupFilter').value;
+      return records.filter(record => {
+        const text = JSON.stringify(record).toLowerCase();
+        return (!query || text.includes(query)) &&
+          (status === 'All Status' || record.status === status) &&
+          (group === 'All Types' || record.group === group);
+      });
+    }
+
+    function renderMatrix() {
+      const rows = currentRows();
+      const body = document.getElementById('matrixBody');
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="6"><div class="empty">没有匹配的实验项</div></td></tr>`;
+        return;
+      }
+      if (!rows.some(r => r.id === activeId)) activeId = rows[0].id;
+      body.innerHTML = rows.map(record => `
+        <tr class="${record.id === activeId ? 'is-active' : ''}" data-id="${record.id}" tabindex="0">
+          <td><span class="id">${record.id}</span></td>
+          <td><strong>${record.modality}</strong><br><span style="color: var(--muted);">${record.group}</span></td>
+          <td>${chipList(record.processing)}</td>
+          <td>${chipList(record.candidates)}</td>
+          <td>${record.baseline}</td>
+          <td>${statusPill(record.status)}</td>
+        </tr>
+      `).join('');
+      body.querySelectorAll('tr[data-id]').forEach(row => {
+        row.addEventListener('click', () => {
+          activeId = row.dataset.id;
+          renderMatrix();
+          renderDetail();
+        });
+        row.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            row.click();
+          }
+        });
+      });
+    }
+
+    function renderDetail() {
+      const record = records.find(r => r.id === activeId) || records[0];
+      document.getElementById('detail').innerHTML = `
+        <div class="detail-head">
+          <div>
+            <span class="id">${record.id}</span>
+            <h2>${record.modality}</h2>
+          </div>
+          ${statusPill(record.status)}
+        </div>
+        <div class="detail-section">
+          <h3>关键难点</h3>
+          ${chipList(record.hard_parts)}
+        </div>
+        <div class="detail-section">
+          <h3>候选方案</h3>
+          ${chipList(record.candidates)}
+        </div>
+        <div class="detail-section">
+          <h3>Baseline</h3>
+          <p>${record.baseline}</p>
+        </div>
+        <div class="detail-section">
+          <h3>指标</h3>
+          ${chipList(record.metrics)}
+        </div>
+        <div class="detail-section">
+          <h3>证据定位</h3>
+          ${chipList(record.evidence)}
+        </div>
+        <div class="detail-section">
+          <h3>下一步</h3>
+          <p>${record.next}</p>
+        </div>
+        <div class="detail-section">
+          <h3>风险</h3>
+          <p>${record.risk}</p>
+        </div>
+      `;
+    }
+
+    function renderSchema() {
+      const descriptions = {
+        modality: '来源类型',
+        source_id: '原始数据或资产 ID',
+        locator: 'chunk、bbox、time range、row 或 graph path',
+        content_ref: '生成器可读取的证据内容引用',
+        score: '召回或重排分数',
+        raw_reference: '文件、对象、SQL 或 graph query 回溯',
+        confidence: '分支或 verifier 置信度',
+        notes: '冲突、低置信或人工备注'
+      };
+      document.getElementById('schemaGrid').innerHTML = registry.evidence_card_fields
+        .map(field => `<div class="schema-item"><b>${field}</b><span>${descriptions[field]}</span></div>`)
+        .join('');
+    }
+
+    function bindControls() {
+      ['search', 'statusFilter', 'groupFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          renderMatrix();
+          renderDetail();
+        });
+      });
+    }
+
+    renderSummary();
+    fillFilters();
+    renderMatrix();
+    renderDetail();
+    renderSchema();
+    bindControls();
+  </script>
+</body>
+</html>

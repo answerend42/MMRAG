@@ -1,0 +1,14 @@
+.venv/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+data/*
+samples/*
+*.md
+docs/
+scripts/
+tests/
+uv.lock

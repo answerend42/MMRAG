@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.0.4">
+  <diagram name="PicRetrieve Image Retrieval Architecture">
+    <mxGraphModel dx="1420" dy="860" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="PicRetrieve 图片检索架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1180" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="src" value="HF 标注数据集&#xa;Flickr30k / CUB200&#xa;captions / qrels" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="185" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="offline" value="离线索引" style="swimlane;startSize=32;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1f3b57;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="85" width="570" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="scan" value="图片与标注读取&#xa;captions / qrels / metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#1f3b57;fontSize=13;" vertex="1" parent="offline">
+          <mxGeometry x="25" y="54" width="155" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="imgenc" value="CLIP 图片编码&#xa;image embeddings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#3b2248;fontSize=13;" vertex="1" parent="offline">
+          <mxGeometry x="210" y="54" width="155" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="writer" value="索引写入&#xa;vectors + ids + metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#5a4200;fontSize=13;" vertex="1" parent="offline">
+          <mxGeometry x="400" y="54" width="150" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="storage" value="本地索引存储" style="swimlane;startSize=32;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#254625;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="315" width="700" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="vector_db" value="向量库&#xa;NumPy&#xa;embeddings.npy" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#82b366;fontColor=#254625;fontSize=12;fontStyle=1;" vertex="1" parent="storage">
+          <mxGeometry x="25" y="48" width="135" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ids_file" value="行号映射&#xa;ids.npy" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#254625;fontSize=12;" vertex="1" parent="storage">
+          <mxGeometry x="190" y="52" width="120" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="sqlite_db" value="元信息库&#xa;SQLite / FTS5&#xa;index.sqlite" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#82b366;fontColor=#254625;fontSize=12;fontStyle=1;" vertex="1" parent="storage">
+          <mxGeometry x="340" y="48" width="145" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="file_root" value="图片文件根&#xa;image_root.txt" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#254625;fontSize=12;" vertex="1" parent="storage">
+          <mxGeometry x="525" y="52" width="130" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="caller" value="调用方&#xa;Dify / FastGPT / Web" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="560" width="185" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="online" value="在线以图搜图服务" style="swimlane;startSize=32;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#5b3600;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="515" width="980" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="FastAPI&#xa;/search/image" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontColor=#5b3600;fontSize=13;" vertex="1" parent="online">
+          <mxGeometry x="25" y="60" width="140" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="queryenc" value="CLIP 查询图编码&#xa;query vector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#3b2248;fontSize=13;" vertex="1" parent="online">
+          <mxGeometry x="205" y="60" width="155" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="vsearch" value="向量相似度检索&#xa;cosine top-k" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1f3b57;fontSize=13;" vertex="1" parent="online">
+          <mxGeometry x="400" y="60" width="150" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="fusion" value="可选分数融合&#xa;metadata_query&#xa;pHash 近重复" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#5a4200;fontSize=13;" vertex="1" parent="online">
+          <mxGeometry x="610" y="48" width="160" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="response" value="返回结果&#xa;JSON + /files/{id}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#254625;fontSize=13;" vertex="1" parent="online">
+          <mxGeometry x="830" y="60" width="140" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="upload_label" value="上传查询图片" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="185" y="535" width="110" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="index_label" value="读取索引 / 图片文件" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#254625;" vertex="1" parent="1">
+          <mxGeometry x="790" y="468" width="180" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="e_src_scan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="src" target="scan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_scan_imgenc" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="offline" source="scan" target="imgenc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_imgenc_writer" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="offline" source="imgenc" target="writer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_writer_storage" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.18;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="writer" target="storage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_caller_api" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="caller" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_api_queryenc" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="online" source="api" target="queryenc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_queryenc_vsearch" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="online" source="queryenc" target="vsearch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vsearch_fusion" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="online" source="vsearch" target="fusion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fusion_response" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#4d4d4d;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="online" source="fusion" target="response">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vector_vsearch" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;dashed=1;strokeColor=#82b366;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="vector_db" target="vsearch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sqlite_fusion" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;dashed=1;strokeColor=#82b366;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sqlite_db" target="fusion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_file_response" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;dashed=1;strokeColor=#82b366;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="file_root" target="response">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
